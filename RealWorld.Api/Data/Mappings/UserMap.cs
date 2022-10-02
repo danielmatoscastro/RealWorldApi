@@ -31,7 +31,7 @@ public class UserMap : IEntityTypeConfiguration<UserModel>
 
         builder.Property(user => user.Bio)
             .HasColumnType("VARCHAR(500)")
-            .IsRequired();
+            .IsRequired(false);
 
         builder
             .HasMany(user => user.Articles)
@@ -71,5 +71,7 @@ public class UserMap : IEntityTypeConfiguration<UserModel>
                         .HasForeignKey("Follow")
                         .OnDelete(DeleteBehavior.NoAction)
             );
+
+        builder.HasIndex(user => user.Email).IsUnique();
     }
 }
