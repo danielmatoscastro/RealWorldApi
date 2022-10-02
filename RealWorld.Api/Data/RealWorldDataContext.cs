@@ -11,6 +11,8 @@ public class RealWorldDataContext : DbContext
     public DbSet<CommentModel> Comments { get; set; }
     public DbSet<TagModel> Tags { get; set; }
 
+    public RealWorldDataContext(DbContextOptions<RealWorldDataContext> options) : base(options) { }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration<ArticleModel>(new ArticleMap());
