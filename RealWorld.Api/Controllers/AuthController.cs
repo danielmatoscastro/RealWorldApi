@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RealWorld.Api.Data;
@@ -9,7 +10,7 @@ using SecureIdentity.Password;
 namespace RealWorld.Api.Controllers;
 
 [ApiController]
-[Route("api/users")]
+[Route("api")]
 public class AuthController : ControllerBase
 {
     private readonly RealWorldDataContext _context;
@@ -21,7 +22,7 @@ public class AuthController : ControllerBase
         _tokenService = tokenService;
     }
 
-    [HttpPost("login")]
+    [HttpPost("users/login")]
     public async Task<IActionResult> Login([FromBody] LoginViewModel payload)
     {
         var userModelDb = await _context.Users.FirstOrDefaultAsync(x => x.Email == payload.User.Email);
@@ -43,12 +44,13 @@ public class AuthController : ControllerBase
             Username = userModelDb.Username,
             Token = token,
             Bio = userModelDb.Bio,
-            Image = null,
+            Image = userModelDb.Image,
         };
 
         return Ok(new { User = userResponse });
     }
 
+    [HttpPost("users")]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserViewModel payload)
     {
         var userModel = new UserModel
@@ -68,6 +70,32 @@ public class AuthController : ControllerBase
             Email = userModel.Email,
             Username = userModel.Username,
             Token = token,
+        };
+
+        return Ok(new { User = userResponse });
+    }
+
+    [Authorize]
+    [HttpGet("user")]
+    public async Task<IActionResult> GetUser()
+    {
+        var userId = User.FindFirst("user_id").Value;
+
+        var userModelDb = await _context.Users.FirstOrDefaultAsync(x => x.Id == Convert.ToInt32(userId));
+        if (userModelDb == null)
+        {
+            return NotFound();
+        }
+
+        var token = _tokenService.GenerateToken(userModelDb);
+
+        var userResponse = new UserResponseViewModel
+        {
+            Email = userModelDb.Email,
+            Username = userModelDb.Username,
+            Token = token,
+            Bio = userModelDb.Bio,
+            Image = userModelDb.Image,
         };
 
         return Ok(new { User = userResponse });

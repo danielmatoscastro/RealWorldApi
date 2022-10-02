@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RealWorld.Api.Data;
 
@@ -11,9 +12,10 @@ using RealWorld.Api.Data;
 namespace RealWorldApi.Migrations
 {
     [DbContext(typeof(RealWorldDataContext))]
-    partial class RealWorldDataContextModelSnapshot : ModelSnapshot
+    [Migration("20221002162637_AddUserImage")]
+    partial class AddUserImage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

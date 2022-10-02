@@ -33,6 +33,10 @@ public class UserMap : IEntityTypeConfiguration<UserModel>
             .HasColumnType("VARCHAR(500)")
             .IsRequired(false);
 
+        builder.Property(user => user.Image)
+           .HasColumnType("VARCHAR(255)")
+           .IsRequired(false);
+
         builder
             .HasMany(user => user.Articles)
             .WithOne(article => article.Author)
