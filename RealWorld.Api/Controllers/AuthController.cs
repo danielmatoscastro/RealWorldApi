@@ -100,4 +100,38 @@ public class AuthController : ControllerBase
 
         return Ok(new { User = userResponse });
     }
+
+    [Authorize]
+    [HttpPut("user")]
+    public async Task<IActionResult> UpdateUser([FromBody] UpdateUserViewModel payload)
+    {
+        var userId = User.FindFirst("user_id").Value;
+
+        var userModelDb = await _context.Users.FirstOrDefaultAsync(x => x.Id == Convert.ToInt32(userId));
+        if (userModelDb == null)
+        {
+            return NotFound();
+        }
+
+        userModelDb.Username = payload.User.Username;
+        userModelDb.Bio = payload.User.Bio;
+        userModelDb.Email = payload.User.Email;
+        userModelDb.PasswordHash = PasswordHasher.Hash(payload.User.Password);
+
+        _context.Users.Update(userModelDb);
+        await _context.SaveChangesAsync();
+
+        var token = _tokenService.GenerateToken(userModelDb);
+
+        var userResponse = new UserResponseViewModel
+        {
+            Email = userModelDb.Email,
+            Username = userModelDb.Username,
+            Token = token,
+            Bio = userModelDb.Bio,
+            Image = userModelDb.Image,
+        };
+
+        return Ok(new { User = userResponse });
+    }
 }
