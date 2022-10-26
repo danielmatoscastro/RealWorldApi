@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RealWorld.Api;
 using RealWorld.Api.Data;
+using RealWorld.Api.Repositories;
 using RealWorld.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +32,7 @@ builder.Services.AddDbContext<RealWorldDataContext>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("RealWorld"))
 );
 builder.Services.AddSingleton<AuthOptions>(authOptions);
+builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<TokenService>();
 
 var app = builder.Build();

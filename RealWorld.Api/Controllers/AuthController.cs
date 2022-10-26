@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RealWorld.Api.Data;
 using RealWorld.Api.Models;
+using RealWorld.Api.Repositories;
 using RealWorld.Api.Services;
 using RealWorld.Api.ViewModels;
 using SecureIdentity.Password;
@@ -13,19 +12,19 @@ namespace RealWorld.Api.Controllers;
 [Route("api")]
 public class AuthController : ControllerBase
 {
-    private readonly RealWorldDataContext _context;
+    private readonly IUserRepository _repository;
     private readonly TokenService _tokenService;
 
-    public AuthController(RealWorldDataContext context, TokenService tokenService)
+    public AuthController(IUserRepository repository, TokenService tokenService)
     {
-        _context = context;
+        _repository = repository;
         _tokenService = tokenService;
     }
 
     [HttpPost("users/login")]
     public async Task<IActionResult> Login([FromBody] LoginViewModel payload)
     {
-        var userModelDb = await _context.Users.FirstOrDefaultAsync(x => x.Email == payload.User.Email);
+        var userModelDb = await _repository.FindByEmailAsync(payload.User.Email);
         if (userModelDb == null)
         {
             return StatusCode(401);
@@ -60,8 +59,7 @@ public class AuthController : ControllerBase
             PasswordHash = PasswordHasher.Hash(payload.User.Password),
         };
 
-        await _context.Users.AddAsync(userModel);
-        await _context.SaveChangesAsync();
+        await _repository.CreateAsync(userModel);
 
         var token = _tokenService.GenerateToken(userModel);
 
@@ -79,9 +77,13 @@ public class AuthController : ControllerBase
     [HttpGet("user")]
     public async Task<IActionResult> GetUser()
     {
-        var userId = User.FindFirst("user_id").Value;
+        var userId = User.GetLoggedUserId();
+        if (userId == null)
+        {
+            return BadRequest();
+        }
 
-        var userModelDb = await _context.Users.FirstOrDefaultAsync(x => x.Id == Convert.ToInt32(userId));
+        var userModelDb = await _repository.FindByIdAsync(userId.Value);
         if (userModelDb == null)
         {
             return NotFound();
@@ -105,9 +107,13 @@ public class AuthController : ControllerBase
     [HttpPut("user")]
     public async Task<IActionResult> UpdateUser([FromBody] UpdateUserViewModel payload)
     {
-        var userId = User.FindFirst("user_id").Value;
+        var userId = User.GetLoggedUserId();
+        if (userId == null)
+        {
+            return BadRequest();
+        }
 
-        var userModelDb = await _context.Users.FirstOrDefaultAsync(x => x.Id == Convert.ToInt32(userId));
+        var userModelDb = await _repository.FindByIdAsync(userId.Value);
         if (userModelDb == null)
         {
             return NotFound();
@@ -117,9 +123,7 @@ public class AuthController : ControllerBase
         userModelDb.Bio = payload.User.Bio;
         userModelDb.Email = payload.User.Email;
         userModelDb.PasswordHash = PasswordHasher.Hash(payload.User.Password);
-
-        _context.Users.Update(userModelDb);
-        await _context.SaveChangesAsync();
+        await _repository.UpdateAsync(userModelDb);
 
         var token = _tokenService.GenerateToken(userModelDb);
 

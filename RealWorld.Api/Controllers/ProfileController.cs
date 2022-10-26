@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RealWorld.Api.Data;
+using RealWorld.Api.Repositories;
 using RealWorld.Api.ViewModels;
 
 namespace RealWorld.Api.Controllers;
@@ -9,30 +8,32 @@ namespace RealWorld.Api.Controllers;
 [ApiController]
 public class ProfileController : ControllerBase
 {
-    private readonly RealWorldDataContext _context;
+    private readonly IUserRepository _repository;
 
-    public ProfileController(RealWorldDataContext context) => _context = context;
+    public ProfileController(IUserRepository repository) => _repository = repository;
 
     [Route("{username:string}")]
     public async Task<IActionResult> GetProfile([FromRoute] string username)
     {
         var userId = User.GetLoggedUserId();
 
-        var profileResponse = await _context.Users
-            .Include(u => u.Followers)
-            .Where(u => u.Username == username)
-            .Select(u => new ProfileResponseViewModel
-            {
-                Username = u.Username,
-                Bio = u.Bio,
-                Image = u.Image,
-                Following = userId != null
-                    ? u.Followers.Any(f => f.Id == userId)
-                    : false,
-            })
-            .AsNoTracking()
-            .FirstOrDefaultAsync();
+        var userModelDb = await _repository.FindByUsernameWithFollowersAsync(username);
+        if (userModelDb == null)
+        {
+            return NotFound();
+        }
 
-        return profileResponse == null ? NotFound() : Ok(new { Profile = profileResponse });
+        var profileResponse = new ProfileResponseViewModel
+        {
+            Username = userModelDb.Username,
+            Bio = userModelDb.Bio,
+            Image = userModelDb.Image,
+            Following = userModelDb.Followers.Any(f => f.Id == userId)
+        };
+
+        return profileResponse == null ? NotFound() : Ok(new
+        {
+            Profile = profileResponse
+        });
     }
 }
