@@ -33,6 +33,7 @@ builder.Services.AddDbContext<RealWorldDataContext>(
 );
 builder.Services.AddSingleton<AuthOptions>(authOptions);
 builder.Services.AddTransient<IUserRepository, UserRepository>();
+builder.Services.AddTransient<IArticleRepository, ArticleRepository>();
 builder.Services.AddTransient<TokenService>();
 
 var app = builder.Build();
