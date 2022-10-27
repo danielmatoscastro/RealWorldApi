@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RealWorld.Api.Models;
 using RealWorld.Api.Repositories;
 using RealWorld.Api.ViewModels;
 
@@ -13,6 +15,7 @@ public class ProfileController : ControllerBase
     public ProfileController(IUserRepository repository) => _repository = repository;
 
     [Route("{username}")]
+    [HttpGet]
     public async Task<IActionResult> GetProfile([FromRoute] string username)
     {
         var userId = User.GetLoggedUserId();
@@ -36,4 +39,49 @@ public class ProfileController : ControllerBase
             Profile = profileResponse
         });
     }
+
+    [Route("{username}/follow")]
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> FollowUser([FromRoute] string username)
+    {
+        var userId = User.GetLoggedUserId();
+        if (userId == null)
+        {
+            return BadRequest();
+        }
+
+        var loggedUserModelDb = await _repository.FindByIdAsync(userId.Value);
+        if (loggedUserModelDb == null)
+        {
+            return NotFound();
+        }
+
+        var userToFollow = await _repository.FindByUsernameWithFollowersAsync(username);
+        if (userToFollow == null)
+        {
+            return NotFound();
+        }
+
+        if (LoggedUserAlreadyIsFollower(loggedUserModelDb, userToFollow))
+        {
+            return BadRequest();
+        }
+
+        userToFollow.Followers.Append(loggedUserModelDb);
+        await _repository.UpdateAsync(userToFollow);
+
+        var profileResponse = new ProfileResponseViewModel
+        {
+            Username = userToFollow.Username,
+            Bio = userToFollow.Bio,
+            Image = userToFollow.Image,
+            Following = true
+        };
+
+        return Ok(new { Profile = profileResponse });
+    }
+
+    private bool LoggedUserAlreadyIsFollower(UserModel loggedUserModelDb, UserModel userToFollow) =>
+        userToFollow.Followers.Any(x => x.Id == loggedUserModelDb.Id);
 }

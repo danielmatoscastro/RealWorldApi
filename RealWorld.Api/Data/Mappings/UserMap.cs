@@ -76,6 +76,7 @@ public class UserMap : IEntityTypeConfiguration<UserModel>
                         .OnDelete(DeleteBehavior.NoAction)
             );
 
+        builder.HasIndex(user => user.Username).IsUnique();
         builder.HasIndex(user => user.Email).IsUnique();
     }
 }
