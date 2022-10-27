@@ -12,7 +12,7 @@ public class ProfileController : ControllerBase
 
     public ProfileController(IUserRepository repository) => _repository = repository;
 
-    [Route("{username:string}")]
+    [Route("{username}")]
     public async Task<IActionResult> GetProfile([FromRoute] string username)
     {
         var userId = User.GetLoggedUserId();
