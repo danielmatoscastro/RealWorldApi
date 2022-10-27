@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using RealWorld.Api.Data.Seeders;
 using RealWorld.Api.Models;
 
 namespace RealWorld.Api.Data.Mappings;
@@ -40,5 +41,7 @@ public class CommentMap : IEntityTypeConfiguration<CommentModel>
             .WithMany(article => article.Comments)
             .OnDelete(DeleteBehavior.NoAction)
             .IsRequired();
+
+        builder.Seed();
     }
 }

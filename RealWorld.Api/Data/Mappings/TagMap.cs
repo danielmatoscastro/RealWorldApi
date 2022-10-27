@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using RealWorld.Api.Data.Seeders;
 using RealWorld.Api.Models;
 
 namespace RealWorld.Api.Data.Mappings;
@@ -15,5 +16,7 @@ public class TagMap : IEntityTypeConfiguration<TagModel>
         builder.Property(tag => tag.Name)
             .HasColumnType("VARCHAR(250)")
             .IsRequired();
+
+        builder.Seed();
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using RealWorld.Api.Data.Seeders;
 using RealWorld.Api.Models;
 
 namespace RealWorld.Api.Data.Mappings;
@@ -57,5 +58,7 @@ public class ArticleMap : IEntityTypeConfiguration<ArticleModel>
                     .HasForeignKey("ArticleSlug")
                     .OnDelete(DeleteBehavior.NoAction)
             );
+
+        builder.Seed();
     }
 }
