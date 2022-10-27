@@ -68,7 +68,7 @@ public class ProfileController : ControllerBase
             return BadRequest();
         }
 
-        userToFollow.Followers.Append(loggedUserModelDb);
+        userToFollow.Followers.Add(loggedUserModelDb);
         await _repository.UpdateAsync(userToFollow);
 
         var profileResponse = new ProfileResponseViewModel

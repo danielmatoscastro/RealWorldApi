@@ -9,7 +9,7 @@ public class ArticleModel
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public UserModel Author { get; set; }
-    public IEnumerable<TagModel> Tags { get; set; }
-    public IEnumerable<UserModel> FavoritedBy { get; set; }
-    public IEnumerable<CommentModel> Comments { get; set; }
+    public ICollection<TagModel> Tags { get; set; }
+    public ICollection<UserModel> FavoritedBy { get; set; }
+    public ICollection<CommentModel> Comments { get; set; }
 }

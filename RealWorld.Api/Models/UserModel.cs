@@ -8,9 +8,9 @@ public class UserModel
     public string Username { get; set; }
     public string Bio { get; set; }
     public string Image { get; set; }
-    public IEnumerable<ArticleModel> Articles { get; set; }
-    public IEnumerable<ArticleModel> Favorites { get; set; }
-    public IEnumerable<CommentModel> Comments { get; set; }
-    public IEnumerable<UserModel> Followers { get; set; }
-    public IEnumerable<UserModel> Following { get; set; }
+    public ICollection<ArticleModel> Articles { get; set; }
+    public ICollection<ArticleModel> Favorites { get; set; }
+    public ICollection<CommentModel> Comments { get; set; }
+    public ICollection<UserModel> Followers { get; set; }
+    public ICollection<UserModel> Following { get; set; }
 }
