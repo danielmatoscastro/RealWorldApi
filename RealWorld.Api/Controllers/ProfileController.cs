@@ -63,7 +63,7 @@ public class ProfileController : ControllerBase
             return NotFound();
         }
 
-        if (LoggedUserAlreadyIsFollower(loggedUserModelDb, userToFollow))
+        if (LoggedUserIsFollower(loggedUserModelDb, userToFollow))
         {
             return BadRequest();
         }
@@ -82,6 +82,48 @@ public class ProfileController : ControllerBase
         return Ok(new { Profile = profileResponse });
     }
 
-    private bool LoggedUserAlreadyIsFollower(UserModel loggedUserModelDb, UserModel userToFollow) =>
-        userToFollow.Followers.Any(x => x.Id == loggedUserModelDb.Id);
+    private bool LoggedUserIsFollower(UserModel loggedUser, UserModel userToFollow) =>
+        userToFollow.Followers.Any(x => x.Id == loggedUser.Id);
+
+    [Route("{username}/follow")]
+    [Authorize]
+    [HttpDelete]
+    public async Task<IActionResult> UnfollowUser([FromRoute] string username)
+    {
+        var userId = User.GetLoggedUserId();
+        if (userId == null)
+        {
+            return BadRequest();
+        }
+
+        var loggedUserModelDb = await _repository.FindByIdAsync(userId.Value);
+        if (loggedUserModelDb == null)
+        {
+            return NotFound();
+        }
+
+        var userToUnfollow = await _repository.FindByUsernameWithFollowersAsync(username);
+        if (userToUnfollow == null)
+        {
+            return NotFound();
+        }
+
+        if (!LoggedUserIsFollower(loggedUserModelDb, userToUnfollow))
+        {
+            return BadRequest();
+        }
+
+        userToUnfollow.Followers.Remove(loggedUserModelDb);
+        await _repository.UpdateAsync(userToUnfollow);
+
+        var profileResponse = new ProfileResponseViewModel
+        {
+            Username = userToUnfollow.Username,
+            Bio = userToUnfollow.Bio,
+            Image = userToUnfollow.Image,
+            Following = false
+        };
+
+        return Ok(new { Profile = profileResponse });
+    }
 }
