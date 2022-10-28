@@ -20,7 +20,7 @@ public class ProfileController : ControllerBase
     {
         var userId = User.GetLoggedUserId();
 
-        var userModelDb = await _repository.FindByUsernameWithFollowersAsync(username);
+        var userModelDb = await _repository.FindByUsernameAsync(username);
         if (userModelDb == null)
         {
             return NotFound();
@@ -57,7 +57,7 @@ public class ProfileController : ControllerBase
             return NotFound();
         }
 
-        var userToFollow = await _repository.FindByUsernameWithFollowersAsync(username);
+        var userToFollow = await _repository.FindByUsernameAsync(username);
         if (userToFollow == null)
         {
             return NotFound();
@@ -102,7 +102,7 @@ public class ProfileController : ControllerBase
             return NotFound();
         }
 
-        var userToUnfollow = await _repository.FindByUsernameWithFollowersAsync(username);
+        var userToUnfollow = await _repository.FindByUsernameAsync(username);
         if (userToUnfollow == null)
         {
             return NotFound();

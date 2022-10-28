@@ -11,7 +11,18 @@ public class ArticleRepository : IArticleRepository
 
     public ArticleRepository(RealWorldDataContext context) => _context = context;
 
-    public Task<List<ArticleModel>> Search(ArticleQuery articleQuery) =>
+    public Task<List<ArticleModel>> GetFeedArticlesAsync(UserModel loggedUser, int limit, int offset) =>
+        _context.Articles
+            .Include(article => article.Author)
+            .Include(article => article.FavoritedBy)
+            .Include(article => article.Tags)
+            .Where(article => loggedUser.Following.Contains(article.Author))
+            .OrderByDescending(article => article.CreatedAt)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
+
+    public Task<List<ArticleModel>> SearchAsync(ArticleQuery articleQuery) =>
         _context.Articles
             .Include(article => article.Author)
             .Include(article => article.FavoritedBy)

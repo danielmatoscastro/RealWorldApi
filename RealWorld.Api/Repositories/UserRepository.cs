@@ -20,19 +20,22 @@ public class UserRepository : IUserRepository
         _context.Users
             .Include(x => x.Followers)
             .Include(x => x.Following)
+            .Include(x => x.Favorites)
             .FirstOrDefaultAsync(x => x.Email == email);
 
     public Task<UserModel> FindByIdAsync(int id) =>
         _context.Users
             .Include(x => x.Followers)
             .Include(x => x.Following)
+            .Include(x => x.Favorites)
             .FirstOrDefaultAsync(x => x.Id == id);
 
-    public Task<UserModel> FindByUsernameWithFollowersAsync(string username) =>
+    public Task<UserModel> FindByUsernameAsync(string username) =>
         _context.Users
-            .Include(u => u.Followers)
-            .Where(u => u.Username == username)
-            .FirstOrDefaultAsync();
+            .Include(x => x.Followers)
+            .Include(x => x.Following)
+            .Include(x => x.Favorites)
+            .FirstOrDefaultAsync(u => u.Username == username);
 
     public async Task UpdateAsync(UserModel model)
     {
