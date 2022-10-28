@@ -18,10 +18,14 @@ public class UserRepository : IUserRepository
 
     public Task<UserModel> FindByEmailAsync(string email) =>
         _context.Users
+            .Include(x => x.Followers)
+            .Include(x => x.Following)
             .FirstOrDefaultAsync(x => x.Email == email);
 
     public Task<UserModel> FindByIdAsync(int id) =>
         _context.Users
+            .Include(x => x.Followers)
+            .Include(x => x.Following)
             .FirstOrDefaultAsync(x => x.Id == id);
 
     public Task<UserModel> FindByUsernameWithFollowersAsync(string username) =>
