@@ -42,4 +42,9 @@ public class ArticleRepository : IArticleRepository
             .Include(article => article.Tags)
             .FirstOrDefaultAsync(article => article.Slug == slug);
 
+    public async Task CreateAsync(ArticleModel articleModel)
+    {
+        await _context.AddAsync(articleModel);
+        await _context.SaveChangesAsync();
+    }
 }

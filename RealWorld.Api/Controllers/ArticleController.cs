@@ -4,6 +4,7 @@ using RealWorld.Api.Models;
 using RealWorld.Api.Queries;
 using RealWorld.Api.Repositories;
 using RealWorld.Api.ViewModels;
+using SlugGenerator;
 
 namespace RealWorld.Api.Controllers;
 
@@ -67,6 +68,38 @@ public class ArticleController : ControllerBase
         }
 
         var articleResponse = MapArticleToViewModel(loggedUser, article);
+        return Ok(new
+        {
+            Article = articleResponse
+        });
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> CreateArticle([FromBody] CreateArticleViewModel payload)
+    {
+        var loggedUser = await GetLoggedUser();
+        if (loggedUser == null)
+        {
+            return Unauthorized();
+        }
+
+        var articleModel = new ArticleModel
+        {
+            Author = loggedUser,
+            Body = payload.Article.Body,
+            Description = payload.Article.Description,
+            Slug = payload.Article.Title.GenerateSlug(),
+            Title = payload.Article.Title,
+            UpdatedAt = DateTimeOffset.Now,
+            CreatedAt = DateTimeOffset.Now,
+            Tags = payload.Article.TagList != null
+                ? payload.Article.TagList.Select(t => new TagModel { Name = t }).ToList()
+                : new List<TagModel>()
+        };
+        await _articleRepo.CreateAsync(articleModel);
+
+        var articleResponse = MapArticleToViewModel(loggedUser, articleModel);
         return Ok(new
         {
             Article = articleResponse
