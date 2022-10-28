@@ -16,10 +16,11 @@ public static class ArticleSeeder
     public static List<ArticleModel> GetTestArticles()
     {
         var testUsers = UserSeeder.GetTestUsers();
-        // testUsers.ForEach(u => Console.WriteLine(u.Id));
-        Randomizer.Seed = new Random(0);
 
+        Randomizer.Seed = new Random(0);
+        var articleId = 1;
         var testArticles = new Faker<ArticleModel>()
+            .RuleFor(a => a.Id, f => articleId++)
             .RuleFor(a => a.Author, f => f.PickRandom(testUsers))
             .RuleFor(a => a.Body, f => f.Lorem.Paragraphs())
             .RuleFor(a => a.CreatedAt, f => f.Date.BetweenOffset(DateTimeOffset.Parse("2022-01-01"), DateTimeOffset.Parse("2022-12-01")))
@@ -35,6 +36,7 @@ public static class ArticleSeeder
     {
         var articles = GetTestArticles().Select(a => new
         {
+            Id = a.Id,
             AuthorId = a.Author.Id,
             Body = a.Body,
             CreatedAt = a.CreatedAt,

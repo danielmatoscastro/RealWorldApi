@@ -93,9 +93,7 @@ public class ArticleController : ControllerBase
             Title = payload.Article.Title,
             UpdatedAt = DateTimeOffset.Now,
             CreatedAt = DateTimeOffset.Now,
-            Tags = payload.Article.TagList != null
-                ? payload.Article.TagList.Select(t => new TagModel { Name = t }).ToList()
-                : new List<TagModel>()
+            Tags = MapTagListToTagsModels(payload.Article.TagList),
         };
         await _articleRepo.CreateAsync(articleModel);
 
@@ -105,6 +103,53 @@ public class ArticleController : ControllerBase
             Article = articleResponse
         });
     }
+
+    [HttpPatch("{slug}")]
+    public async Task<IActionResult> UpdateArticle([FromRoute] string slug, [FromBody] UpdateArticleViewModel payload)
+    {
+        var loggedUser = await GetLoggedUser();
+        if (loggedUser == null)
+        {
+            return Unauthorized();
+        }
+
+        var articleModelDb = await _articleRepo.GetArticleBySlug(slug);
+        if (articleModelDb == null)
+        {
+            return NotFound();
+        }
+
+        if (articleModelDb.Author.Id != loggedUser.Id)
+        {
+            return Forbid();
+        }
+
+        if (payload.Article.Title != null)
+        {
+            articleModelDb.Title = payload.Article.Title;
+            articleModelDb.Slug = payload.Article.Title.GenerateSlug();
+        }
+        if (payload.Article.Description != null)
+        {
+            articleModelDb.Description = payload.Article.Description;
+        }
+        if (payload.Article.Body != null)
+        {
+            articleModelDb.Body = payload.Article.Body;
+        }
+        await _articleRepo.UpdateAsync(articleModelDb);
+
+        var articleResponse = MapArticleToViewModel(loggedUser, articleModelDb);
+        return Ok(new
+        {
+            Article = articleResponse
+        });
+    }
+
+    private ICollection<TagModel> MapTagListToTagsModels(IEnumerable<string> tagList) =>
+        tagList != null
+            ? tagList.Select(t => new TagModel { Name = t }).ToList()
+            : new List<TagModel>();
 
     private IEnumerable<ArticleResponseViewModel> MapArticlesToViewModels(UserModel loggedUser, List<ArticleModel> articles) =>
         articles.Select(article => MapArticleToViewModel(loggedUser, article));

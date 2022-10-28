@@ -11,7 +11,12 @@ public class ArticleMap : IEntityTypeConfiguration<ArticleModel>
     {
         builder.ToTable("ARTICLE");
 
-        builder.HasKey(article => article.Slug);
+        builder.HasKey(article => article.Id);
+
+        builder.Property(article => article.Id)
+           .HasColumnType("INT")
+           .IsRequired()
+           .ValueGeneratedOnAdd();
 
         builder.Property(article => article.Slug)
             .HasColumnType("VARCHAR(100)")
@@ -55,9 +60,11 @@ public class ArticleMap : IEntityTypeConfiguration<ArticleModel>
                 j => j
                     .HasOne<ArticleModel>()
                     .WithMany()
-                    .HasForeignKey("ArticleSlug")
+                    .HasForeignKey("ArticleId")
                     .OnDelete(DeleteBehavior.NoAction)
             );
+
+        builder.HasIndex(article => article.Slug).IsUnique();
 
         builder.Seed();
     }

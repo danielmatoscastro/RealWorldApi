@@ -47,4 +47,10 @@ public class ArticleRepository : IArticleRepository
         await _context.AddAsync(articleModel);
         await _context.SaveChangesAsync();
     }
+
+    public async Task UpdateAsync(ArticleModel articleModel)
+    {
+        _context.Update(articleModel);
+        await _context.SaveChangesAsync();
+    }
 }

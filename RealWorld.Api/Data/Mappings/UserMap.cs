@@ -51,7 +51,7 @@ public class UserMap : IEntityTypeConfiguration<UserModel>
                 j => j
                         .HasOne<ArticleModel>()
                         .WithMany()
-                        .HasForeignKey("ArticleSlug")
+                        .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.NoAction),
                 j => j
                         .HasOne<UserModel>()

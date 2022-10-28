@@ -12,8 +12,8 @@ using RealWorld.Api.Data;
 namespace RealWorldApi.Migrations
 {
     [DbContext(typeof(RealWorldDataContext))]
-    [Migration("20221028115449_addBetterSlugArticleSeed")]
-    partial class addBetterSlugArticleSeed
+    [Migration("20221028165258_recreateDatabase")]
+    partial class recreateDatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -26,13 +26,13 @@ namespace RealWorldApi.Migrations
 
             modelBuilder.Entity("ARTICLES_TAGS", b =>
                 {
-                    b.Property<string>("ArticleSlug")
-                        .HasColumnType("VARCHAR(100)");
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("INT");
 
                     b.Property<string>("TagName")
                         .HasColumnType("VARCHAR(250)");
 
-                    b.HasKey("ArticleSlug", "TagName");
+                    b.HasKey("ArticleId", "TagName");
 
                     b.HasIndex("TagName");
 
@@ -41,13 +41,13 @@ namespace RealWorldApi.Migrations
 
             modelBuilder.Entity("FAVORITES", b =>
                 {
-                    b.Property<string>("ArticleSlug")
-                        .HasColumnType("VARCHAR(100)");
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("INT");
 
                     b.Property<int>("FavoritedBy")
                         .HasColumnType("INT");
 
-                    b.HasKey("ArticleSlug", "FavoritedBy");
+                    b.HasKey("ArticleId", "FavoritedBy");
 
                     b.HasIndex("FavoritedBy");
 
@@ -71,8 +71,11 @@ namespace RealWorldApi.Migrations
 
             modelBuilder.Entity("RealWorld.Api.Models.ArticleModel", b =>
                 {
-                    b.Property<string>("Slug")
-                        .HasColumnType("VARCHAR(100)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INT");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int>("AuthorId")
                         .HasColumnType("INT");
@@ -88,6 +91,10 @@ namespace RealWorldApi.Migrations
                         .IsRequired()
                         .HasColumnType("VARCHAR(500)");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("VARCHAR(100)");
@@ -95,110 +102,123 @@ namespace RealWorldApi.Migrations
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("DATETIMEOFFSET");
 
-                    b.HasKey("Slug");
+                    b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
 
                     b.ToTable("ARTICLE", (string)null);
 
                     b.HasData(
                         new
                         {
-                            Slug = "aut-quod-ea-recusandae-magni-cumque-et",
+                            Id = 1,
                             AuthorId = 8,
                             Body = "Iste quia natus et dignissimos reiciendis ad nostrum totam. Totam voluptatibus doloremque eos asperiores cum ipsam illum. Doloribus aperiam cumque non recusandae est unde vitae amet. Exercitationem doloribus facilis omnis doloremque vel. A quas porro sed ad. Autem suscipit blanditiis ratione modi velit porro dolorum corrupti adipisci.\n\nId vero soluta fuga eius saepe eveniet dicta quo. Facilis dolorem eius repellat. Et quisquam consequatur aut qui porro. Et consectetur voluptatum ut. Tempore totam fugiat consequatur autem. Itaque exercitationem cupiditate nam sit quis qui modi amet.\n\nEligendi et molestiae modi non et ut. Explicabo voluptatem odit est tenetur quos ratione cum. Tempora et consequatur ea pariatur veritatis veniam.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 8, 24, 11, 5, 12, 413, DateTimeKind.Unspecified).AddTicks(8675), new TimeSpan(0, -3, 0, 0, 0)),
                             Description = "Doloribus iure cupiditate minima molestias provident inventore minima dolores nulla.",
+                            Slug = "aut-quod-ea-recusandae-magni-cumque-et",
                             Title = "Aut quod ea recusandae magni cumque et.",
                             UpdatedAt = new DateTimeOffset(new DateTime(2022, 8, 24, 11, 5, 12, 413, DateTimeKind.Unspecified).AddTicks(8675), new TimeSpan(0, -3, 0, 0, 0))
                         },
                         new
                         {
-                            Slug = "omnis-molestiae-est-repellat-est",
+                            Id = 2,
                             AuthorId = 9,
                             Body = "Quia sit est magnam repellat similique veritatis. Voluptas similique facilis sint ut. Excepturi sequi vel. In omnis tempore asperiores corporis et laudantium atque. Quasi incidunt voluptatem ducimus.\n\nIure illum sed. Doloremque molestias sapiente asperiores sit et minima delectus officia est. Quam aut rerum aut aliquam. Eveniet dolor aut perspiciatis.\n\nAliquid doloribus aperiam eligendi quia adipisci dolores. Voluptatem enim et repellendus dolores laborum natus. Laboriosam voluptatem aspernatur debitis quo saepe et aliquam. Voluptatum adipisci necessitatibus quos quidem. Consequatur et asperiores laborum alias. Sapiente nesciunt est sunt consectetur veritatis aut minus aut voluptas.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 8, 3, 15, 38, 55, 286, DateTimeKind.Unspecified).AddTicks(9773), new TimeSpan(0, -3, 0, 0, 0)),
                             Description = "Et quo eos ducimus et et praesentium.",
+                            Slug = "omnis-molestiae-est-repellat-est",
                             Title = "Omnis molestiae est repellat est.",
                             UpdatedAt = new DateTimeOffset(new DateTime(2022, 8, 3, 15, 38, 55, 286, DateTimeKind.Unspecified).AddTicks(9773), new TimeSpan(0, -3, 0, 0, 0))
                         },
                         new
                         {
-                            Slug = "fugit-nesciunt-omnis-fugiat",
+                            Id = 3,
                             AuthorId = 1,
                             Body = "Officiis ut eos alias iste tempore vel et quia repellendus. Eum ut cupiditate neque harum omnis ipsam. Et praesentium et laboriosam. Voluptatem distinctio quia sed. Est atque aut odio sed eos error.\n\nPerferendis similique praesentium asperiores quia quia veniam harum. Aliquam voluptatem perferendis dignissimos exercitationem voluptas qui provident hic. Rerum at eveniet totam. Ex omnis corporis quam reprehenderit nihil nam animi recusandae. Ullam soluta nisi totam et eius voluptates occaecati eos hic.\n\nVoluptas amet voluptatem et officia voluptates. Possimus temporibus sed aut laborum. Sunt illum et labore autem deserunt nam vitae. Asperiores nesciunt deleniti veritatis voluptatem maiores eaque.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 4, 21, 21, 58, 9, 221, DateTimeKind.Unspecified).AddTicks(3445), new TimeSpan(0, -3, 0, 0, 0)),
                             Description = "Sint sunt vero.",
+                            Slug = "fugit-nesciunt-omnis-fugiat",
                             Title = "Fugit nesciunt omnis fugiat.",
                             UpdatedAt = new DateTimeOffset(new DateTime(2022, 4, 21, 21, 58, 9, 221, DateTimeKind.Unspecified).AddTicks(3445), new TimeSpan(0, -3, 0, 0, 0))
                         },
                         new
                         {
-                            Slug = "ut-quo-iste-qui-quod-quisquam-officia-veritatis-sit",
+                            Id = 4,
                             AuthorId = 8,
                             Body = "Quia dolor in qui. Tempora in quae minima atque ex est esse autem. Aut dolores cupiditate possimus.\n\nBlanditiis dicta qui ipsa omnis ut cumque impedit. Perspiciatis quo nihil et voluptate illum. Facere ut et qui doloribus ab unde. Delectus dignissimos et et.\n\nNemo repellat et blanditiis libero explicabo asperiores est. Aut cumque laboriosam. Earum occaecati sit excepturi eum autem occaecati eum nostrum.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 10, 5, 22, 32, 45, 271, DateTimeKind.Unspecified).AddTicks(384), new TimeSpan(0, -3, 0, 0, 0)),
                             Description = "Qui ea sed nihil architecto suscipit sint omnis et.",
+                            Slug = "ut-quo-iste-qui-quod-quisquam-officia-veritatis-sit",
                             Title = "Ut quo iste qui quod quisquam officia veritatis sit.",
                             UpdatedAt = new DateTimeOffset(new DateTime(2022, 10, 5, 22, 32, 45, 271, DateTimeKind.Unspecified).AddTicks(384), new TimeSpan(0, -3, 0, 0, 0))
                         },
                         new
                         {
-                            Slug = "tenetur-aut-ut-et-qui-est",
+                            Id = 5,
                             AuthorId = 1,
                             Body = "Ut est rerum dolor recusandae quae perspiciatis sed. Sit dolorem architecto est voluptatem. Similique et porro delectus molestiae nobis asperiores. Soluta fuga inventore rerum expedita recusandae voluptatem odit. Et architecto dolorem molestiae repellendus nostrum ea accusamus incidunt. Similique eius tempore.\n\nDeleniti neque voluptatem ducimus totam architecto a ut. Et sapiente sequi officiis. Necessitatibus animi itaque voluptates autem dolorem. Explicabo harum repellendus quia ipsam explicabo eligendi similique.\n\nAut qui suscipit neque quos voluptates. Rerum porro rerum odit molestiae sit qui eos non. Laboriosam sint et enim exercitationem ipsam. Iure provident ut.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 2, 12, 0, 50, 23, 186, DateTimeKind.Unspecified).AddTicks(6612), new TimeSpan(0, -3, 0, 0, 0)),
                             Description = "Reiciendis ut in illum.",
+                            Slug = "tenetur-aut-ut-et-qui-est",
                             Title = "Tenetur aut ut et qui est.",
                             UpdatedAt = new DateTimeOffset(new DateTime(2022, 2, 12, 0, 50, 23, 186, DateTimeKind.Unspecified).AddTicks(6612), new TimeSpan(0, -3, 0, 0, 0))
                         },
                         new
                         {
-                            Slug = "eveniet-esse-reiciendis-eos-commodi-sit-ab-qui",
+                            Id = 6,
                             AuthorId = 1,
                             Body = "Modi unde dolorem laborum sapiente amet repellendus et. Ab quibusdam ipsum quo eum. Est sapiente tempore placeat quos. Soluta nihil odit mollitia accusamus consequuntur doloribus tempora.\n\nSimilique ipsa quidem explicabo non eius sint ad earum. Aliquid repudiandae aliquid voluptatem magnam. Sit minima totam et. Ipsam omnis et. Voluptas veritatis perferendis sunt inventore quibusdam ea. Tempora incidunt magni architecto id minus.\n\nIn aut consequuntur. Assumenda ex dicta ut et earum. Possimus excepturi consequatur magnam ut quo omnis nobis. Ut sit aut error. Quas quia autem quia dolorem ducimus perspiciatis repudiandae iure et.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 6, 20, 12, 35, 16, 495, DateTimeKind.Unspecified).AddTicks(6423), new TimeSpan(0, -3, 0, 0, 0)),
                             Description = "Ut assumenda corrupti aut libero laudantium sed sunt.",
+                            Slug = "eveniet-esse-reiciendis-eos-commodi-sit-ab-qui",
                             Title = "Eveniet esse reiciendis eos commodi sit ab qui.",
                             UpdatedAt = new DateTimeOffset(new DateTime(2022, 6, 20, 12, 35, 16, 495, DateTimeKind.Unspecified).AddTicks(6423), new TimeSpan(0, -3, 0, 0, 0))
                         },
                         new
                         {
-                            Slug = "quidem-quo-eaque-voluptates-hic-ab-ea",
+                            Id = 7,
                             AuthorId = 2,
                             Body = "Natus iusto ut incidunt exercitationem tempora laudantium dolores neque voluptas. Consectetur quod et. Repellendus adipisci sit ut.\n\nVoluptatum corporis id impedit vel quaerat et ut dolores. Dolore in officia dicta aut quas quaerat. Dignissimos alias dolorum molestiae aut omnis modi labore. Consectetur qui at numquam. Dolores nesciunt dicta dolores nam occaecati deleniti delectus distinctio incidunt.\n\nDebitis autem sequi provident quasi. Itaque et autem porro qui. Dolores dolorem atque sunt sit laborum accusamus. Corporis laboriosam ut molestiae alias ut quo id. Voluptatum laboriosam reprehenderit quaerat.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 6, 11, 1, 47, 21, 791, DateTimeKind.Unspecified).AddTicks(6164), new TimeSpan(0, -3, 0, 0, 0)),
                             Description = "Et dicta quo sed fugit repudiandae quo fugit dolor perferendis.",
+                            Slug = "quidem-quo-eaque-voluptates-hic-ab-ea",
                             Title = "Quidem quo eaque voluptates hic ab ea.",
                             UpdatedAt = new DateTimeOffset(new DateTime(2022, 6, 11, 1, 47, 21, 791, DateTimeKind.Unspecified).AddTicks(6164), new TimeSpan(0, -3, 0, 0, 0))
                         },
                         new
                         {
-                            Slug = "architecto-nisi-voluptatum-corporis",
+                            Id = 8,
                             AuthorId = 1,
                             Body = "Necessitatibus est provident aut dignissimos velit ullam. Autem facere nostrum perferendis non. Atque corporis quos.\n\nDeserunt modi quia velit laudantium sit alias cumque. Non nostrum aperiam ut laudantium. Perspiciatis commodi sit sit tempore. Velit quibusdam ea voluptatem dolore fuga voluptates maiores. Facilis iste est exercitationem molestiae ipsam. Enim quasi assumenda dignissimos et aut temporibus vitae quisquam.\n\nSimilique molestias quia quia rem vitae perferendis. Molestiae porro voluptatem numquam. Sunt porro et aut id nihil earum aperiam.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 1, 16, 8, 36, 50, 883, DateTimeKind.Unspecified).AddTicks(7108), new TimeSpan(0, -3, 0, 0, 0)),
                             Description = "Ab fugit magnam tempora numquam in consequatur voluptatem perspiciatis.",
+                            Slug = "architecto-nisi-voluptatum-corporis",
                             Title = "Architecto nisi voluptatum corporis.",
                             UpdatedAt = new DateTimeOffset(new DateTime(2022, 1, 16, 8, 36, 50, 883, DateTimeKind.Unspecified).AddTicks(7108), new TimeSpan(0, -3, 0, 0, 0))
                         },
                         new
                         {
-                            Slug = "vitae-voluptas-nihil-voluptas-ad-necessitatibus-tempore-ut",
+                            Id = 9,
                             AuthorId = 6,
                             Body = "Minima magnam necessitatibus quae neque at veritatis. Repellendus ratione voluptates ut exercitationem. Sint occaecati minus.\n\nModi at quibusdam. Quam in id sit quidem placeat et error ex. Eveniet distinctio repellendus nesciunt qui rerum quaerat consectetur.\n\nAliquam aspernatur aut magnam vitae iste. Quod incidunt sint eos cum deleniti rem totam est. Quo molestiae id perspiciatis qui iste optio. Ducimus minus commodi alias amet placeat. Reiciendis consequatur cupiditate. Molestiae ex recusandae beatae non.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 6, 16, 12, 41, 24, 317, DateTimeKind.Unspecified).AddTicks(3448), new TimeSpan(0, -3, 0, 0, 0)),
                             Description = "Quo temporibus modi dolor enim.",
+                            Slug = "vitae-voluptas-nihil-voluptas-ad-necessitatibus-tempore-ut",
                             Title = "Vitae voluptas nihil voluptas ad necessitatibus tempore ut.",
                             UpdatedAt = new DateTimeOffset(new DateTime(2022, 6, 16, 12, 41, 24, 317, DateTimeKind.Unspecified).AddTicks(3448), new TimeSpan(0, -3, 0, 0, 0))
                         },
                         new
                         {
-                            Slug = "dolores-ab-quia-soluta-repellat-eligendi-harum-nihil-deserunt",
+                            Id = 10,
                             AuthorId = 3,
                             Body = "Dolorem blanditiis quod ipsa assumenda eum cumque fugit. Ratione modi quia ut ut tempore ipsa magnam porro et. Ut quam cum et. Voluptas ut nihil voluptatum pariatur dolor voluptatem et ullam. Voluptatum possimus nostrum quasi sapiente. Et commodi ut eos sed occaecati esse.\n\nQuam dolorem quis cum commodi voluptate dolor qui dolor. Natus repellat quidem aspernatur consequatur quasi. Animi explicabo velit quis a est rerum et. Illo dolores inventore maxime. At aut harum molestiae a dolor dolorem recusandae nulla.\n\nFugit et in cupiditate molestiae voluptatem ipsum temporibus esse sint. Ea natus laudantium quia nihil. Neque aliquid facilis. Iusto harum impedit saepe consequatur libero velit nostrum debitis. Dolore quas aliquid nulla sit perspiciatis consequuntur est.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 9, 22, 4, 3, 39, 257, DateTimeKind.Unspecified).AddTicks(5851), new TimeSpan(0, -3, 0, 0, 0)),
                             Description = "Enim voluptas necessitatibus provident cumque quasi delectus dolor ex et.",
+                            Slug = "dolores-ab-quia-soluta-repellat-eligendi-harum-nihil-deserunt",
                             Title = "Dolores ab quia soluta repellat eligendi harum nihil deserunt.",
                             UpdatedAt = new DateTimeOffset(new DateTime(2022, 9, 22, 4, 3, 39, 257, DateTimeKind.Unspecified).AddTicks(5851), new TimeSpan(0, -3, 0, 0, 0))
                         });
@@ -212,9 +232,8 @@ namespace RealWorldApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("ArticleSlug")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(100)");
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("INT");
 
                     b.Property<int>("AuthorId")
                         .HasColumnType("INT");
@@ -231,7 +250,7 @@ namespace RealWorldApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ArticleSlug");
+                    b.HasIndex("ArticleId");
 
                     b.HasIndex("AuthorId");
 
@@ -241,7 +260,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 1,
-                            ArticleSlug = "architecto-nisi-voluptatum-corporis",
+                            ArticleId = 8,
                             AuthorId = 9,
                             Body = "Iste quia natus et dignissimos reiciendis ad nostrum totam.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 1, 16, 23, 47, 52, 627, DateTimeKind.Unspecified).AddTicks(6022), new TimeSpan(0, -3, 0, 0, 0)),
@@ -250,7 +269,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 2,
-                            ArticleSlug = "tenetur-aut-ut-et-qui-est",
+                            ArticleId = 5,
                             AuthorId = 10,
                             Body = "Eos asperiores cum.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 2, 12, 8, 23, 23, 917, DateTimeKind.Unspecified).AddTicks(5785), new TimeSpan(0, -3, 0, 0, 0)),
@@ -259,7 +278,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 3,
-                            ArticleSlug = "vitae-voluptas-nihil-voluptas-ad-necessitatibus-tempore-ut",
+                            ArticleId = 9,
                             AuthorId = 9,
                             Body = "Aperiam cumque non recusandae est unde vitae amet qui exercitationem.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 6, 17, 12, 24, 54, 499, DateTimeKind.Unspecified).AddTicks(8606), new TimeSpan(0, -3, 0, 0, 0)),
@@ -268,7 +287,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 4,
-                            ArticleSlug = "quidem-quo-eaque-voluptates-hic-ab-ea",
+                            ArticleId = 7,
                             AuthorId = 8,
                             Body = "Vel nisi a.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 6, 11, 13, 54, 44, 955, DateTimeKind.Unspecified).AddTicks(5979), new TimeSpan(0, -3, 0, 0, 0)),
@@ -277,7 +296,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 5,
-                            ArticleSlug = "architecto-nisi-voluptatum-corporis",
+                            ArticleId = 8,
                             AuthorId = 2,
                             Body = "Et autem suscipit blanditiis ratione.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 1, 16, 13, 55, 32, 477, DateTimeKind.Unspecified).AddTicks(2070), new TimeSpan(0, -3, 0, 0, 0)),
@@ -286,7 +305,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 6,
-                            ArticleSlug = "tenetur-aut-ut-et-qui-est",
+                            ArticleId = 5,
                             AuthorId = 8,
                             Body = "Corrupti adipisci debitis dolorem id vero soluta.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 2, 12, 15, 50, 11, 620, DateTimeKind.Unspecified).AddTicks(7865), new TimeSpan(0, -3, 0, 0, 0)),
@@ -295,7 +314,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 7,
-                            ArticleSlug = "fugit-nesciunt-omnis-fugiat",
+                            ArticleId = 3,
                             AuthorId = 9,
                             Body = "Dicta quo ipsum facilis dolorem eius repellat deleniti et quisquam.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 4, 22, 17, 23, 46, 788, DateTimeKind.Unspecified).AddTicks(2803), new TimeSpan(0, -3, 0, 0, 0)),
@@ -304,7 +323,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 8,
-                            ArticleSlug = "omnis-molestiae-est-repellat-est",
+                            ArticleId = 2,
                             AuthorId = 8,
                             Body = "Consequuntur et consectetur voluptatum ut voluptas tempore totam.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 8, 4, 11, 39, 9, 419, DateTimeKind.Unspecified).AddTicks(2751), new TimeSpan(0, -3, 0, 0, 0)),
@@ -313,7 +332,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 9,
-                            ArticleSlug = "vitae-voluptas-nihil-voluptas-ad-necessitatibus-tempore-ut",
+                            ArticleId = 9,
                             AuthorId = 8,
                             Body = "Itaque exercitationem cupiditate nam sit quis qui modi amet.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 6, 16, 14, 20, 4, 346, DateTimeKind.Unspecified).AddTicks(296), new TimeSpan(0, -3, 0, 0, 0)),
@@ -322,7 +341,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 10,
-                            ArticleSlug = "quidem-quo-eaque-voluptates-hic-ab-ea",
+                            ArticleId = 7,
                             AuthorId = 7,
                             Body = "Molestiae modi non et ut cum explicabo voluptatem.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 6, 11, 4, 21, 24, 214, DateTimeKind.Unspecified).AddTicks(9554), new TimeSpan(0, -3, 0, 0, 0)),
@@ -331,7 +350,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 11,
-                            ArticleSlug = "quidem-quo-eaque-voluptates-hic-ab-ea",
+                            ArticleId = 7,
                             AuthorId = 10,
                             Body = "Ratione cum similique tempora et consequatur.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 6, 11, 10, 27, 6, 923, DateTimeKind.Unspecified).AddTicks(645), new TimeSpan(0, -3, 0, 0, 0)),
@@ -340,7 +359,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 12,
-                            ArticleSlug = "vitae-voluptas-nihil-voluptas-ad-necessitatibus-tempore-ut",
+                            ArticleId = 9,
                             AuthorId = 1,
                             Body = "Nihil a doloribus iure cupiditate.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 6, 16, 19, 25, 4, 425, DateTimeKind.Unspecified).AddTicks(2527), new TimeSpan(0, -3, 0, 0, 0)),
@@ -349,7 +368,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 13,
-                            ArticleSlug = "eveniet-esse-reiciendis-eos-commodi-sit-ab-qui",
+                            ArticleId = 6,
                             AuthorId = 6,
                             Body = "Minima dolores nulla.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 6, 21, 3, 18, 13, 335, DateTimeKind.Unspecified).AddTicks(3345), new TimeSpan(0, -3, 0, 0, 0)),
@@ -358,7 +377,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 14,
-                            ArticleSlug = "omnis-molestiae-est-repellat-est",
+                            ArticleId = 2,
                             AuthorId = 8,
                             Body = "Recusandae magni cumque et eum nobis.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 8, 4, 5, 19, 21, 37, DateTimeKind.Unspecified).AddTicks(3780), new TimeSpan(0, -3, 0, 0, 0)),
@@ -367,7 +386,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 15,
-                            ArticleSlug = "omnis-molestiae-est-repellat-est",
+                            ArticleId = 2,
                             AuthorId = 2,
                             Body = "Magnam repellat similique veritatis voluptatem voluptas similique.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 8, 4, 7, 9, 8, 832, DateTimeKind.Unspecified).AddTicks(8696), new TimeSpan(0, -3, 0, 0, 0)),
@@ -376,7 +395,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 16,
-                            ArticleSlug = "eveniet-esse-reiciendis-eos-commodi-sit-ab-qui",
+                            ArticleId = 6,
                             AuthorId = 10,
                             Body = "Excepturi sequi vel.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 6, 21, 4, 0, 30, 336, DateTimeKind.Unspecified).AddTicks(3808), new TimeSpan(0, -3, 0, 0, 0)),
@@ -385,7 +404,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 17,
-                            ArticleSlug = "eveniet-esse-reiciendis-eos-commodi-sit-ab-qui",
+                            ArticleId = 6,
                             AuthorId = 6,
                             Body = "Asperiores corporis et laudantium atque numquam quasi incidunt.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 6, 20, 16, 12, 28, 436, DateTimeKind.Unspecified).AddTicks(5496), new TimeSpan(0, -3, 0, 0, 0)),
@@ -394,7 +413,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 18,
-                            ArticleSlug = "tenetur-aut-ut-et-qui-est",
+                            ArticleId = 5,
                             AuthorId = 5,
                             Body = "Iure illum sed.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 2, 12, 22, 46, 0, 754, DateTimeKind.Unspecified).AddTicks(9959), new TimeSpan(0, -3, 0, 0, 0)),
@@ -403,7 +422,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 19,
-                            ArticleSlug = "aut-quod-ea-recusandae-magni-cumque-et",
+                            ArticleId = 1,
                             AuthorId = 6,
                             Body = "Asperiores sit et minima delectus officia est quia quam aut.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 8, 25, 8, 21, 2, 777, DateTimeKind.Unspecified).AddTicks(9698), new TimeSpan(0, -3, 0, 0, 0)),
@@ -412,7 +431,7 @@ namespace RealWorldApi.Migrations
                         new
                         {
                             Id = 20,
-                            ArticleSlug = "dolores-ab-quia-soluta-repellat-eligendi-harum-nihil-deserunt",
+                            ArticleId = 10,
                             AuthorId = 3,
                             Body = "Eveniet dolor aut perspiciatis.",
                             CreatedAt = new DateTimeOffset(new DateTime(2022, 9, 22, 22, 54, 7, 166, DateTimeKind.Unspecified).AddTicks(1177), new TimeSpan(0, -3, 0, 0, 0)),
@@ -515,7 +534,7 @@ namespace RealWorldApi.Migrations
                             Bio = "Illum assumenda iste quia natus et dignissimos reiciendis.\nNostrum totam harum totam voluptatibus.\nEos asperiores cum.",
                             Email = "Reagan.Stanton69@gmail.com",
                             Image = "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/657.jpg",
-                            PasswordHash = "10000.lJlvQiLEr9zRsTYwomkUQA==.LcRsSsOilykIZXUrCDr3yago6ZdRWAffxdQ6dKZe4Mw=",
+                            PasswordHash = "10000.ZiJTadfBrqA1nuIToOMJLw==.gKRHw0IVosl1pweo/nfCCRP7sKnJnYHMC8UJtxMsOQg=",
                             Username = "Trace Pfeffer"
                         },
                         new
@@ -524,7 +543,7 @@ namespace RealWorldApi.Migrations
                             Bio = "Vitae amet qui exercitationem doloribus facilis omnis.\nVel nisi a.\nPorro sed ad et autem suscipit blanditiis.",
                             Email = "Dallin_Jast48@gmail.com",
                             Image = "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/243.jpg",
-                            PasswordHash = "10000.TQ2qFu1bsHSgXSTURoo+Gw==.iB0So0vra969rQhnN/hx+7613zus4C5kPbLt57eaYOo=",
+                            PasswordHash = "10000.8ahMOp9SfG+cnAuGEd3XNg==.Mdd5FuiDGtsu5kpJCklmQtM7zGnnQXGVGbcnx1pt328=",
                             Username = "Shad Shanahan"
                         },
                         new
@@ -533,7 +552,7 @@ namespace RealWorldApi.Migrations
                             Bio = "Vero soluta fuga eius saepe eveniet dicta quo.\nFacilis dolorem eius repellat.\nEt quisquam consequatur aut qui porro.",
                             Email = "Susan_Dickens@gmail.com",
                             Image = "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/406.jpg",
-                            PasswordHash = "10000.hlYD/Zb03QGc1r7jzvVNmA==.7YVMtsSqDk2m2OFvHbeWqMeC4M6wxN6hcIel07uM4qc=",
+                            PasswordHash = "10000.65xW27T9h+dJEsxVZdS9pA==.MnL6NAaTvaOqvxQbmIFhGkTuBfg4TfmXeIQa0ywm07g=",
                             Username = "Marcos Koss"
                         },
                         new
@@ -542,7 +561,7 @@ namespace RealWorldApi.Migrations
                             Bio = "Consequatur autem voluptas itaque exercitationem cupiditate nam sit quis.\nModi amet quasi fuga eligendi et molestiae modi non.\nUt cum explicabo.",
                             Email = "Benny.Monahan14@gmail.com",
                             Image = "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/847.jpg",
-                            PasswordHash = "10000.YMlmEdpYO31SN8nWnLnl1g==.L0pE7oNMOC13NiDj9iCqsYhDWyfSWwPmdAJKTDAKMjA=",
+                            PasswordHash = "10000.f/YEls5ktXG0EjWDvK3jxg==.M968h1FFeyEZmbbUfKEw9r8pUHy6P5ZLmVT8vlGFnhQ=",
                             Username = "Kevin Fahey"
                         },
                         new
@@ -551,7 +570,7 @@ namespace RealWorldApi.Migrations
                             Bio = "Consequatur ea pariatur veritatis veniam nihil a.\nIure cupiditate minima molestias provident inventore minima dolores nulla laborum.\nQuod ea recusandae.",
                             Email = "Maximo_Morissette56@gmail.com",
                             Image = "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/215.jpg",
-                            PasswordHash = "10000.d/orWzw2DBRa1A0+0FmLZA==.mGBv+2rbfni1N7D69EJe80abpNC9n/PXD4zDLsytoP4=",
+                            PasswordHash = "10000.osHP59R/cYQ5eJcFWTNUfA==.S6/iNboW8NYEm460Wec6Kz98z+gxWk9eAIg0VAUcAWE=",
                             Username = "Christina Monahan"
                         },
                         new
@@ -560,7 +579,7 @@ namespace RealWorldApi.Migrations
                             Bio = "Repellat similique veritatis voluptatem voluptas.\nFacilis sint ut beatae excepturi sequi vel.\nIn omnis tempore asperiores corporis et laudantium atque.",
                             Email = "Antonia44@gmail.com",
                             Image = "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/563.jpg",
-                            PasswordHash = "10000.RPWsH3/B1sB4C4Ood9MQoQ==.ukR68nAIjQ7xV+/GH/tkCgZBLpromo8xu9GjdUvaukc=",
+                            PasswordHash = "10000.7/Xc6w4B6zjOoU9EZip2Yw==.iC7vAacS433tqEt4bVde8Qp32gI5WRceSzQtZXnwlBo=",
                             Username = "Aisha Howell"
                         },
                         new
@@ -569,7 +588,7 @@ namespace RealWorldApi.Migrations
                             Bio = "Sed repudiandae doloremque molestias sapiente asperiores sit et minima.\nOfficia est quia quam aut rerum aut aliquam magni eveniet.\nAut perspiciatis repellendus excepturi.",
                             Email = "Zachariah.Bartoletti19@yahoo.com",
                             Image = "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/620.jpg",
-                            PasswordHash = "10000.kjYfEGQFRlHxjNf551K/Rg==.lmI8TAbQD1LnipUvpQiVPOiqXcN9FFHnwtrtxcvfn7E=",
+                            PasswordHash = "10000.9F0iTrfa/JgFTbZaSWNVWQ==.tnkZ2BMc1WnalmGEXkk0CTveouI/ks8+5UYHA2yzzXc=",
                             Username = "Krista Gibson"
                         },
                         new
@@ -578,7 +597,7 @@ namespace RealWorldApi.Migrations
                             Bio = "Et repellendus dolores laborum natus.\nLaboriosam voluptatem aspernatur debitis quo saepe et aliquam.\nVoluptatum adipisci necessitatibus quos quidem.",
                             Email = "Frida_Frami0@gmail.com",
                             Image = "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/1229.jpg",
-                            PasswordHash = "10000.spQH1D22SPsKuz78RggP9Q==.OugYlJqr/eQYVjfx0PXAAoseR4OnkMdrAT9/prp2s48=",
+                            PasswordHash = "10000.ja0uiOXPHQLNrpnLelstBw==.vn4P2l8sfapAjKkH7oUuzu91ehplf77jF5FFUVmdxm4=",
                             Username = "Vidal Crona"
                         },
                         new
@@ -587,7 +606,7 @@ namespace RealWorldApi.Migrations
                             Bio = "Sunt consectetur veritatis aut minus aut voluptas facilis sunt.\nQuo eos ducimus et.\nPraesentium laboriosam omnis molestiae est repellat est sunt fuga.",
                             Email = "Scarlett0@hotmail.com",
                             Image = "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/696.jpg",
-                            PasswordHash = "10000.wtvDH3y0D0BTzFUmgIE+2g==./XHVj0xVTavVTc3Ba/qNPVEciHIPxkHQ+6CjEPlPf+g=",
+                            PasswordHash = "10000.jShZFh6ZyCYapxC1Ki9vbQ==.xRWJyUldz9Dcmhvh1KmvUOEcUw32S8pux9yQqi0PS60=",
                             Username = "Margarett Hoeger"
                         },
                         new
@@ -596,7 +615,7 @@ namespace RealWorldApi.Migrations
                             Bio = "Quia repellendus occaecati eum ut cupiditate neque harum omnis.\nMagnam et praesentium et laboriosam.\nVoluptatem distinctio quia sed.",
                             Email = "Oma43@yahoo.com",
                             Image = "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/149.jpg",
-                            PasswordHash = "10000.vh+fREFC9b2slL1WwYDZxQ==.UXg9CvypwA540U4sGfZLFV0vV5/yfki8f20MPoBTJqw=",
+                            PasswordHash = "10000.vL+1WT5biI7rJy6/YihhOQ==.lF2oiVbPiFF40/niKXAbI2IbtKUak0bwOu39k1K1aXg=",
                             Username = "Rylee Maggio"
                         });
                 });
@@ -605,7 +624,7 @@ namespace RealWorldApi.Migrations
                 {
                     b.HasOne("RealWorld.Api.Models.ArticleModel", null)
                         .WithMany()
-                        .HasForeignKey("ArticleSlug")
+                        .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
@@ -620,7 +639,7 @@ namespace RealWorldApi.Migrations
                 {
                     b.HasOne("RealWorld.Api.Models.ArticleModel", null)
                         .WithMany()
-                        .HasForeignKey("ArticleSlug")
+                        .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
@@ -661,7 +680,7 @@ namespace RealWorldApi.Migrations
                 {
                     b.HasOne("RealWorld.Api.Models.ArticleModel", "Article")
                         .WithMany("Comments")
-                        .HasForeignKey("ArticleSlug")
+                        .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 

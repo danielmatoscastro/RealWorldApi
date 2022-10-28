@@ -29,7 +29,7 @@ public static class CommentSeeder
     {
         var comments = GetTestComments().Select(c => new
         {
-            ArticleSlug = c.Article.Slug,
+            ArticleId = c.Article.Id,
             AuthorId = c.Author.Id,
             Body = c.Body,
             CreatedAt = c.CreatedAt,
