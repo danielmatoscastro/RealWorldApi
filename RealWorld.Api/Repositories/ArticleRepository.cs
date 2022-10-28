@@ -34,4 +34,12 @@ public class ArticleRepository : IArticleRepository
             .Skip(articleQuery.Offset)
             .Take(articleQuery.Limit)
             .ToListAsync();
+
+    public Task<ArticleModel> GetArticleBySlug(string slug) =>
+        _context.Articles
+            .Include(article => article.Author)
+            .Include(article => article.FavoritedBy)
+            .Include(article => article.Tags)
+            .FirstOrDefaultAsync(article => article.Slug == slug);
+
 }

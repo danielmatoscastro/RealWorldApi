@@ -55,8 +55,29 @@ public class ArticleController : ControllerBase
         });
     }
 
+    [HttpGet("{slug}")]
+    public async Task<IActionResult> GetArticle([FromRoute] string slug)
+    {
+        var loggedUser = await GetLoggedUser();
+
+        var article = await _articleRepo.GetArticleBySlug(slug);
+        if (article == null)
+        {
+            return NotFound();
+        }
+
+        var articleResponse = MapArticleToViewModel(loggedUser, article);
+        return Ok(new
+        {
+            Article = articleResponse
+        });
+    }
+
     private IEnumerable<ArticleResponseViewModel> MapArticlesToViewModels(UserModel loggedUser, List<ArticleModel> articles) =>
-        articles.Select(article => new ArticleResponseViewModel
+        articles.Select(article => MapArticleToViewModel(loggedUser, article));
+
+    private ArticleResponseViewModel MapArticleToViewModel(UserModel loggedUser, ArticleModel article) =>
+        new ArticleResponseViewModel
         {
             Author = new AuthorViewModel
             {
@@ -74,7 +95,7 @@ public class ArticleController : ControllerBase
             TagList = article.Tags.Select(tag => tag.Name),
             Title = article.Title,
             UpdatedAt = article.UpdatedAt
-        });
+        };
 
     private bool IsArticleFavoritedByLoggedUser(UserModel loggedUser, ArticleModel article) =>
         loggedUser != null ? loggedUser.Favorites.Contains(article) : false;

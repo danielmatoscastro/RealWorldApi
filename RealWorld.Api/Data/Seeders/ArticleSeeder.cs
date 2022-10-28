@@ -10,6 +10,7 @@ public static class ArticleSeeder
         text
             .Trim()
             .Replace(" ", "-")
+            .Replace(".", "")
             .ToLower();
 
     public static List<ArticleModel> GetTestArticles()
