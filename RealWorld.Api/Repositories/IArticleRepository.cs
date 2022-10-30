@@ -10,4 +10,5 @@ public interface IArticleRepository
     public Task<ArticleModel> GetArticleBySlug(string slug);
     public Task CreateAsync(ArticleModel articleModel);
     public Task UpdateAsync(ArticleModel articleModelDb);
+    public Task DeleteArticle(ArticleModel article);
 }

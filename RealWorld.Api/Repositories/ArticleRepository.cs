@@ -40,6 +40,7 @@ public class ArticleRepository : IArticleRepository
             .Include(article => article.Author)
             .Include(article => article.FavoritedBy)
             .Include(article => article.Tags)
+            .Include(article => article.Comments)
             .FirstOrDefaultAsync(article => article.Slug == slug);
 
     public async Task CreateAsync(ArticleModel articleModel)
@@ -51,6 +52,17 @@ public class ArticleRepository : IArticleRepository
     public async Task UpdateAsync(ArticleModel articleModel)
     {
         _context.Update(articleModel);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteArticle(ArticleModel articleModel)
+    {
+        foreach (var comment in articleModel.Comments)
+        {
+            _context.Comments.Remove(comment);
+        }
+
+        _context.Articles.Remove(articleModel);
         await _context.SaveChangesAsync();
     }
 }

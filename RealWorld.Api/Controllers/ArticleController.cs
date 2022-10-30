@@ -146,6 +146,32 @@ public class ArticleController : ControllerBase
         });
     }
 
+    [Authorize]
+    [HttpDelete("{slug}")]
+    public async Task<IActionResult> DeleteArticle([FromRoute] string slug)
+    {
+        var loggedUser = await GetLoggedUser();
+        if (loggedUser == null)
+        {
+            return Unauthorized();
+        }
+
+        var article = await _articleRepo.GetArticleBySlug(slug);
+        if (article == null)
+        {
+            return NotFound();
+        }
+
+        if (article.Author.Id != loggedUser.Id)
+        {
+            return Forbid();
+        }
+
+        await _articleRepo.DeleteArticle(article);
+
+        return NoContent();
+    }
+
     private ICollection<TagModel> MapTagListToTagsModels(IEnumerable<string> tagList) =>
         tagList != null
             ? tagList.Select(t => new TagModel { Name = t }).ToList()
