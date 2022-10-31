@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using RealWorld.Api.Data;
 using RealWorld.Api.Models;
 
@@ -14,4 +15,13 @@ public class CommentRepository : ICommentRepository
         await _context.Comments.AddAsync(commentModel);
         await _context.SaveChangesAsync();
     }
+
+    public Task<List<CommentModel>> GetCommentsBySlugAsync(string slug) =>
+        _context.Comments
+            .Include(comment => comment.Article)
+            .Include(comment => comment.Author)
+            .ThenInclude(author => author.Followers)
+            .Where(comment => comment.Article.Slug == slug)
+            .ToListAsync();
+
 }

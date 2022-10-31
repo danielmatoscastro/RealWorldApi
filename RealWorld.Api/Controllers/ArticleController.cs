@@ -201,13 +201,42 @@ public class ArticleController : ControllerBase
 
         await _commentRepo.AddCommentAsync(comment);
 
-        var response = new AddCommentResponseViewModel
+        var response = MapCommentToViewModel(loggedUser, comment);
+
+        return Ok(new
+        {
+            Comment = response
+        });
+    }
+
+    [HttpGet("{slug}/comments")]
+    public async Task<IActionResult> GetAllComments([FromRoute] string slug)
+    {
+        var loggedUser = await GetLoggedUser();
+
+        var comments = await _commentRepo.GetCommentsBySlugAsync(slug);
+        if (comments == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new
+        {
+            Comments = MapCommentsToViewModels(loggedUser, comments),
+        });
+    }
+
+    private IEnumerable<CommentResponseViewModel> MapCommentsToViewModels(UserModel loggedUser, List<CommentModel> comments) =>
+        comments.Select(comment => MapCommentToViewModel(loggedUser, comment));
+
+    private CommentResponseViewModel MapCommentToViewModel(UserModel loggedUser, CommentModel comment) =>
+        new CommentResponseViewModel
         {
             Id = comment.Id,
             Body = comment.Body,
             CreatedAt = comment.CreatedAt,
             UpdatedAt = comment.UpdatedAt,
-            Author = new AddCommentAuthorResponseViewModel
+            Author = new CommentAuthorResponseViewModel
             {
                 Bio = comment.Author.Bio,
                 Following = comment.Author.Followers.Contains(loggedUser),
@@ -215,12 +244,6 @@ public class ArticleController : ControllerBase
                 Username = comment.Author.Username
             }
         };
-
-        return Ok(new
-        {
-            Comment = response
-        });
-    }
 
     private ICollection<TagModel> MapTagListToTagsModels(IEnumerable<string> tagList) =>
         tagList != null

@@ -1,6 +1,6 @@
 namespace RealWorld.Api.ViewModels;
 
-public class AddCommentAuthorResponseViewModel
+public class CommentAuthorResponseViewModel
 {
     public string Username { get; set; }
     public string Bio { get; set; }
