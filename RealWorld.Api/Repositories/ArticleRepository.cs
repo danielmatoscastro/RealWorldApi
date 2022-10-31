@@ -51,7 +51,7 @@ public class ArticleRepository : IArticleRepository
 
     public async Task UpdateAsync(ArticleModel articleModel)
     {
-        _context.Update(articleModel);
+        _context.Articles.Update(articleModel);
         await _context.SaveChangesAsync();
     }
 

@@ -14,11 +14,13 @@ public class ArticleController : ControllerBase
 {
     private readonly IUserRepository _userRepo;
     private readonly IArticleRepository _articleRepo;
+    private readonly ICommentRepository _commentRepo;
 
-    public ArticleController(IUserRepository userRepo, IArticleRepository articleRepo)
+    public ArticleController(IUserRepository userRepo, IArticleRepository articleRepo, ICommentRepository commentRepo)
     {
         _userRepo = userRepo;
         _articleRepo = articleRepo;
+        _commentRepo = commentRepo;
     }
 
     [HttpGet]
@@ -170,6 +172,54 @@ public class ArticleController : ControllerBase
         await _articleRepo.DeleteArticle(article);
 
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpPost("{slug}/comments")]
+    public async Task<IActionResult> AddCommentToArticle([FromRoute] string slug, [FromBody] AddCommentViewModel payload)
+    {
+        var loggedUser = await GetLoggedUser();
+        if (loggedUser == null)
+        {
+            return Unauthorized();
+        }
+
+        var article = await _articleRepo.GetArticleBySlug(slug);
+        if (article == null)
+        {
+            return NotFound();
+        }
+
+        var comment = new CommentModel
+        {
+            Author = loggedUser,
+            Article = article,
+            Body = payload.Comment.Body,
+            CreatedAt = DateTimeOffset.Now,
+            UpdatedAt = DateTimeOffset.Now,
+        };
+
+        await _commentRepo.AddCommentAsync(comment);
+
+        var response = new AddCommentResponseViewModel
+        {
+            Id = comment.Id,
+            Body = comment.Body,
+            CreatedAt = comment.CreatedAt,
+            UpdatedAt = comment.UpdatedAt,
+            Author = new AddCommentAuthorResponseViewModel
+            {
+                Bio = comment.Author.Bio,
+                Following = comment.Author.Followers.Contains(loggedUser),
+                Image = comment.Author.Image,
+                Username = comment.Author.Username
+            }
+        };
+
+        return Ok(new
+        {
+            Comment = response
+        });
     }
 
     private ICollection<TagModel> MapTagListToTagsModels(IEnumerable<string> tagList) =>
