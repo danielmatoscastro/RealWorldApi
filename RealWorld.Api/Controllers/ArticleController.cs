@@ -288,6 +288,37 @@ public class ArticleController : ControllerBase
         });
     }
 
+    [Authorize]
+    [HttpDelete("{slug}/favorite")]
+    public async Task<IActionResult> UnfavoriteArticle([FromRoute] string slug)
+    {
+        var loggedUser = await GetLoggedUser();
+        if (loggedUser == null)
+        {
+            return Unauthorized();
+        }
+
+        var article = await _articleRepo.GetArticleBySlug(slug);
+        if (article == null)
+        {
+            return NotFound();
+        }
+
+        if (!article.FavoritedBy.Contains(loggedUser))
+        {
+            return BadRequest();
+        }
+
+        article.FavoritedBy.Remove(loggedUser);
+        await _articleRepo.UpdateAsync(article);
+
+        var articleResponse = MapArticleToViewModel(loggedUser, article);
+        return Ok(new
+        {
+            Article = articleResponse
+        });
+    }
+
     private IEnumerable<CommentResponseViewModel> MapCommentsToViewModels(UserModel loggedUser, List<CommentModel> comments) =>
         comments.Select(comment => MapCommentToViewModel(loggedUser, comment));
 
