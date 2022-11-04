@@ -226,6 +226,37 @@ public class ArticleController : ControllerBase
         });
     }
 
+    [Authorize]
+    [HttpDelete("{slug}/comments/{id:int}")]
+    public async Task<IActionResult> DeleteComment([FromRoute] string slug, [FromRoute] int id)
+    {
+        var loggedUser = await GetLoggedUser();
+        if (loggedUser == null)
+        {
+            return Unauthorized();
+        }
+
+        var comment = await _commentRepo.GetCommentByIdAsync(id);
+        if (comment == null)
+        {
+            return NotFound();
+        }
+
+        if (comment.Author.Id != loggedUser.Id)
+        {
+            return Forbid();
+        }
+
+        if (comment.Article.Slug != slug)
+        {
+            return BadRequest();
+        }
+
+        await _commentRepo.DeleteAsync(comment);
+
+        return NoContent();
+    }
+
     private IEnumerable<CommentResponseViewModel> MapCommentsToViewModels(UserModel loggedUser, List<CommentModel> comments) =>
         comments.Select(comment => MapCommentToViewModel(loggedUser, comment));
 
