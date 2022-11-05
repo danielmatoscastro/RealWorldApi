@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RealWorld.Api.Extensions;
@@ -6,6 +7,7 @@ using RealWorld.Api.Repositories;
 using RealWorld.Api.Services;
 using RealWorld.Api.ViewModels;
 using SecureIdentity.Password;
+using System.IO;
 
 namespace RealWorld.Api.Controllers;
 
@@ -138,6 +140,44 @@ public class AuthController : ControllerBase
             Token = token,
             Bio = userModelDb.Bio,
             Image = userModelDb.Image,
+        };
+
+        return Ok(new { User = userResponse });
+    }
+
+    [Authorize]
+    [HttpPost("user/image-upload")]
+    public async Task<IActionResult> UploadUserImage([FromBody] UploadUserImageViewModel payload)
+    {
+        if (!ModelState.IsValid)
+        {
+            return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
+        }
+
+        var loggedUser = await GetLoggedUser();
+        if (loggedUser == null)
+        {
+            return Unauthorized();
+        }
+
+        var imageName = $"{Guid.NewGuid().ToString()}.jpg";
+        var data = new Regex(@"data:image\/[a-z]*;base64,").Replace(payload.User.Image, string.Empty);
+        var dataInBytes = Convert.FromBase64String(data);
+
+        var imagePath = Path.Combine("wwwroot", "images", imageName);
+        await System.IO.File.WriteAllBytesAsync(imagePath, dataInBytes);
+
+        loggedUser.Image = imagePath;
+        await _userRepo.UpdateAsync(loggedUser);
+
+        var token = _tokenService.GenerateToken(loggedUser);
+        var userResponse = new UserResponseViewModel
+        {
+            Email = loggedUser.Email,
+            Username = loggedUser.Username,
+            Token = token,
+            Bio = loggedUser.Bio,
+            Image = loggedUser.Image,
         };
 
         return Ok(new { User = userResponse });
