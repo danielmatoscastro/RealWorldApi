@@ -13,12 +13,12 @@ namespace RealWorld.Api.Controllers;
 [Route("api")]
 public class AuthController : ControllerBase
 {
-    private readonly IUserRepository _repository;
+    private readonly IUserRepository _userRepo;
     private readonly TokenService _tokenService;
 
-    public AuthController(IUserRepository repository, TokenService tokenService)
+    public AuthController(IUserRepository userRepo, TokenService tokenService)
     {
-        _repository = repository;
+        _userRepo = userRepo;
         _tokenService = tokenService;
     }
 
@@ -30,7 +30,7 @@ public class AuthController : ControllerBase
             return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
         }
 
-        var userModelDb = await _repository.FindByEmailAsync(payload.User.Email);
+        var userModelDb = await _userRepo.FindByEmailAsync(payload.User.Email);
         if (userModelDb == null)
         {
             return NotFound();
@@ -70,7 +70,7 @@ public class AuthController : ControllerBase
             PasswordHash = PasswordHasher.Hash(payload.User.Password),
         };
 
-        await _repository.CreateAsync(userModel);
+        await _userRepo.CreateAsync(userModel);
 
         var token = _tokenService.GenerateToken(userModel);
 
@@ -88,13 +88,7 @@ public class AuthController : ControllerBase
     [HttpGet("user")]
     public async Task<IActionResult> GetUser()
     {
-        var userId = User.GetLoggedUserId();
-        if (userId == null)
-        {
-            return BadRequest();
-        }
-
-        var userModelDb = await _repository.FindByIdAsync(userId.Value);
+        var userModelDb = await GetLoggedUser();
         if (userModelDb == null)
         {
             return NotFound();
@@ -123,13 +117,7 @@ public class AuthController : ControllerBase
             return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
         }
 
-        var userId = User.GetLoggedUserId();
-        if (userId == null)
-        {
-            return BadRequest();
-        }
-
-        var userModelDb = await _repository.FindByIdAsync(userId.Value);
+        var userModelDb = await GetLoggedUser();
         if (userModelDb == null)
         {
             return NotFound();
@@ -139,7 +127,7 @@ public class AuthController : ControllerBase
         userModelDb.Bio = payload.User.Bio;
         userModelDb.Email = payload.User.Email;
         userModelDb.PasswordHash = PasswordHasher.Hash(payload.User.Password);
-        await _repository.UpdateAsync(userModelDb);
+        await _userRepo.UpdateAsync(userModelDb);
 
         var token = _tokenService.GenerateToken(userModelDb);
 
@@ -154,4 +142,9 @@ public class AuthController : ControllerBase
 
         return Ok(new { User = userResponse });
     }
+
+    private async Task<UserModel> GetLoggedUser() =>
+        User.Identity.IsAuthenticated && User.GetLoggedUserId() != null
+            ? await _userRepo.FindByIdAsync(User.GetLoggedUserId().Value)
+            : null;
 }

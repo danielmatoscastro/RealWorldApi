@@ -10,9 +10,9 @@ namespace RealWorld.Api.Controllers;
 [ApiController]
 public class ProfileController : ControllerBase
 {
-    private readonly IUserRepository _repository;
+    private readonly IUserRepository _userRepo;
 
-    public ProfileController(IUserRepository repository) => _repository = repository;
+    public ProfileController(IUserRepository userRepo) => _userRepo = userRepo;
 
     [Route("{username}")]
     [HttpGet]
@@ -20,7 +20,7 @@ public class ProfileController : ControllerBase
     {
         var userId = User.GetLoggedUserId();
 
-        var userModelDb = await _repository.FindByUsernameAsync(username);
+        var userModelDb = await _userRepo.FindByUsernameAsync(username);
         if (userModelDb == null)
         {
             return NotFound();
@@ -45,19 +45,13 @@ public class ProfileController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> FollowUser([FromRoute] string username)
     {
-        var userId = User.GetLoggedUserId();
-        if (userId == null)
-        {
-            return BadRequest();
-        }
-
-        var loggedUserModelDb = await _repository.FindByIdAsync(userId.Value);
+        var loggedUserModelDb = await GetLoggedUser();
         if (loggedUserModelDb == null)
         {
             return NotFound();
         }
 
-        var userToFollow = await _repository.FindByUsernameAsync(username);
+        var userToFollow = await _userRepo.FindByUsernameAsync(username);
         if (userToFollow == null)
         {
             return NotFound();
@@ -69,7 +63,7 @@ public class ProfileController : ControllerBase
         }
 
         userToFollow.Followers.Add(loggedUserModelDb);
-        await _repository.UpdateAsync(userToFollow);
+        await _userRepo.UpdateAsync(userToFollow);
 
         var profileResponse = new ProfileResponseViewModel
         {
@@ -90,19 +84,13 @@ public class ProfileController : ControllerBase
     [HttpDelete]
     public async Task<IActionResult> UnfollowUser([FromRoute] string username)
     {
-        var userId = User.GetLoggedUserId();
-        if (userId == null)
-        {
-            return BadRequest();
-        }
-
-        var loggedUserModelDb = await _repository.FindByIdAsync(userId.Value);
+        var loggedUserModelDb = await GetLoggedUser();
         if (loggedUserModelDb == null)
         {
             return NotFound();
         }
 
-        var userToUnfollow = await _repository.FindByUsernameAsync(username);
+        var userToUnfollow = await _userRepo.FindByUsernameAsync(username);
         if (userToUnfollow == null)
         {
             return NotFound();
@@ -114,7 +102,7 @@ public class ProfileController : ControllerBase
         }
 
         userToUnfollow.Followers.Remove(loggedUserModelDb);
-        await _repository.UpdateAsync(userToUnfollow);
+        await _userRepo.UpdateAsync(userToUnfollow);
 
         var profileResponse = new ProfileResponseViewModel
         {
@@ -126,4 +114,9 @@ public class ProfileController : ControllerBase
 
         return Ok(new { Profile = profileResponse });
     }
+
+    private async Task<UserModel> GetLoggedUser() =>
+        User.Identity.IsAuthenticated && User.GetLoggedUserId() != null
+            ? await _userRepo.FindByIdAsync(User.GetLoggedUserId().Value)
+            : null;
 }
