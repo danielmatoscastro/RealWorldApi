@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RealWorld.Api;
 using RealWorld.Api.Data;
+using RealWorld.Api.Middlewares;
 using RealWorld.Api.Repositories;
 using RealWorld.Api.Services;
 
@@ -42,6 +43,7 @@ builder.Services.AddTransient<ITagRepository, TagRepository>();
 builder.Services.AddTransient<TokenService>();
 
 var app = builder.Build();
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
