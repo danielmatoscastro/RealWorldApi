@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RealWorld.Api.Extensions;
 using RealWorld.Api.Models;
 using RealWorld.Api.Repositories;
 using RealWorld.Api.Services;
@@ -24,15 +25,20 @@ public class AuthController : ControllerBase
     [HttpPost("users/login")]
     public async Task<IActionResult> Login([FromBody] LoginViewModel payload)
     {
+        if (!ModelState.IsValid)
+        {
+            return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
+        }
+
         var userModelDb = await _repository.FindByEmailAsync(payload.User.Email);
         if (userModelDb == null)
         {
-            return StatusCode(401);
+            return NotFound();
         }
 
         if (!PasswordHasher.Verify(userModelDb.PasswordHash, payload.User.Password))
         {
-            return StatusCode(401);
+            return Unauthorized();
         }
 
         var token = _tokenService.GenerateToken(userModelDb);
@@ -52,6 +58,11 @@ public class AuthController : ControllerBase
     [HttpPost("users")]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserViewModel payload)
     {
+        if (!ModelState.IsValid)
+        {
+            return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
+        }
+
         var userModel = new UserModel
         {
             Username = payload.User.Username,
@@ -107,6 +118,11 @@ public class AuthController : ControllerBase
     [HttpPut("user")]
     public async Task<IActionResult> UpdateUser([FromBody] UpdateUserViewModel payload)
     {
+        if (!ModelState.IsValid)
+        {
+            return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
+        }
+
         var userId = User.GetLoggedUserId();
         if (userId == null)
         {

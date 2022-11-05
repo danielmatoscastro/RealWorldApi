@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RealWorld.Api.Extensions;
 using RealWorld.Api.Models;
 using RealWorld.Api.Queries;
 using RealWorld.Api.Repositories;
@@ -80,6 +81,11 @@ public class ArticleController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateArticle([FromBody] CreateArticleViewModel payload)
     {
+        if (!ModelState.IsValid)
+        {
+            return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
+        }
+
         var loggedUser = await GetLoggedUser();
         if (loggedUser == null)
         {
@@ -109,6 +115,11 @@ public class ArticleController : ControllerBase
     [HttpPatch("{slug}")]
     public async Task<IActionResult> UpdateArticle([FromRoute] string slug, [FromBody] UpdateArticleViewModel payload)
     {
+        if (!ModelState.IsValid)
+        {
+            return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
+        }
+
         var loggedUser = await GetLoggedUser();
         if (loggedUser == null)
         {
@@ -178,6 +189,11 @@ public class ArticleController : ControllerBase
     [HttpPost("{slug}/comments")]
     public async Task<IActionResult> AddCommentToArticle([FromRoute] string slug, [FromBody] AddCommentViewModel payload)
     {
+        if (!ModelState.IsValid)
+        {
+            return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
+        }
+
         var loggedUser = await GetLoggedUser();
         if (loggedUser == null)
         {

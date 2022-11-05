@@ -27,7 +27,10 @@ builder.Services.AddAuthentication(x =>
 });
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 builder.Services.AddDbContext<RealWorldDataContext>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("RealWorld"))
 );

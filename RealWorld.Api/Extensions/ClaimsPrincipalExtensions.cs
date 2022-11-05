@@ -2,7 +2,7 @@ using System.Security.Claims;
 
 namespace RealWorld.Api;
 
-public static class Extensions
+public static class ClaimsPrincipalExtensions
 {
     public static int? GetLoggedUserId(this ClaimsPrincipal user)
     {
