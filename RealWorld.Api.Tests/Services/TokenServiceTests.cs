@@ -1,4 +1,5 @@
 using System.Text;
+using FluentAssertions;
 using RealWorld.Api.Models;
 using RealWorld.Api.Services;
 
@@ -6,13 +7,12 @@ namespace RealWorld.Api.Tests.Services;
 
 public class TokenServiceTests
 {
-    private readonly AuthOptions _options;
     private readonly TokenService _tokenService;
 
     public TokenServiceTests()
     {
-        _options = new AuthOptions { JwtKey = "MWRmOGMyZTctNGJhNy00OTlkLTk4YzAtMjIwNjE5MDI0NTRhNjJkOGNiZGUtM2EzYS00YWZkLWEzOTEtNTY2MjViMjg0MDU2" };
-        _tokenService = new TokenService(_options);
+        var options = new AuthOptions { JwtKey = "MWRmOGMyZTctNGJhNy00OTlkLTk4YzAtMjIwNjE5MDI0NTRhNjJkOGNiZGUtM2EzYS00YWZkLWEzOTEtNTY2MjViMjg0MDU2" };
+        _tokenService = new TokenService(options);
     }
 
     [Fact]
@@ -22,9 +22,10 @@ public class TokenServiceTests
 
         var token = _tokenService.GenerateToken(userModel);
 
-        Assert.NotNull(token);
-        var tokeSplitted = token.Split('.');
-        Assert.Equal(tokeSplitted.Length, 3);
+        token.Should().NotBeNull();
+        
+        var tokenSplitted = token.Split('.');
+        tokenSplitted.Length.Should().Be(3);
     }
 
     private UserModel PopulateUserModel() => new UserModel
