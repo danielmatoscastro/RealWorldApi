@@ -22,8 +22,8 @@ public class ArticleService : IArticleService
     public Task<List<ArticleModel>> GetFeedArticlesAsync(UserModel loggedUser, int limit, int offset) => 
         _articleRepo.GetFeedArticlesAsync(loggedUser, limit, offset);
 
-    public Task<ArticleModel> GetArticleBySlug(string slug) => _articleRepo.GetArticleBySlug(slug);
-    public async Task<ArticleModel> CreateAsync(UserModel author, string articleBody, string articleDescription, string articleTitle, ICollection<TagModel> tags)
+    public Task<ArticleModel> GetArticleBySlugAsync(string slug) => _articleRepo.GetArticleBySlugAsync(slug);
+    public async Task<ArticleModel> CreateArticleAsync(UserModel author, string articleBody, string articleDescription, string articleTitle, ICollection<TagModel> tags)
     {
         var articleModel = new ArticleModel
         {
@@ -37,14 +37,14 @@ public class ArticleService : IArticleService
             Tags = tags,
         };
         
-        await _articleRepo.CreateAsync(articleModel);
+        await _articleRepo.CreateArticleAsync(articleModel);
 
         return articleModel;
     }
 
-    public async Task<ArticleModel> UpdateAsync(UserModel loggedUser, string slug, string title, string description, string body)
+    public async Task<ArticleModel> UpdateArticleAsync(UserModel loggedUser, string slug, string title, string description, string body)
     {
-        var articleModelDb = await _articleRepo.GetArticleBySlug(slug);
+        var articleModelDb = await _articleRepo.GetArticleBySlugAsync(slug);
         if (articleModelDb == null)
         {
             throw new EntityNotFoundException("Article");
@@ -52,7 +52,7 @@ public class ArticleService : IArticleService
 
         if (articleModelDb.Author.Id != loggedUser.Id)
         {
-            throw new ForbiddenOperation(nameof(UpdateAsync));
+            throw new ForbiddenOperation(nameof(UpdateArticleAsync));
         }
         
         if (!string.IsNullOrEmpty(title))
@@ -69,14 +69,14 @@ public class ArticleService : IArticleService
             articleModelDb.Body = body;
         }
         
-        await _articleRepo.UpdateAsync(articleModelDb);
+        await _articleRepo.UpdateArticleAsync(articleModelDb);
 
         return articleModelDb;
     }
 
-    public async Task DeleteAsync(UserModel loggedUser, string slug)
+    public async Task DeleteArticleAsync(UserModel loggedUser, string slug)
     {
-        var article = await _articleRepo.GetArticleBySlug(slug);
+        var article = await _articleRepo.GetArticleBySlugAsync(slug);
         if (article == null)
         {
             throw new EntityNotFoundException("Article");
@@ -84,15 +84,15 @@ public class ArticleService : IArticleService
 
         if (article.Author.Id != loggedUser.Id)
         {
-            throw new ForbiddenOperation(nameof(DeleteAsync));
+            throw new ForbiddenOperation(nameof(DeleteArticleAsync));
         }
 
-        await _articleRepo.DeleteArticle(article);
+        await _articleRepo.DeleteArticleAsync(article);
     }
 
     public async Task<CommentModel> AddCommentToArticleAsync(UserModel loggedUser, string slug, string commentBody)
     {
-        var article = await _articleRepo.GetArticleBySlug(slug);
+        var article = await _articleRepo.GetArticleBySlugAsync(slug);
         if (article == null)
         {
             throw new EntityNotFoundException("Article");
@@ -146,7 +146,7 @@ public class ArticleService : IArticleService
 
     public async Task<ArticleModel> FavoriteArticleAsync(UserModel loggedUser, string slug)
     {
-        var article = await _articleRepo.GetArticleBySlug(slug);
+        var article = await _articleRepo.GetArticleBySlugAsync(slug);
         if (article == null)
         {
             throw new EntityNotFoundException("Article");
@@ -159,14 +159,14 @@ public class ArticleService : IArticleService
 
         article.FavoritedBy.Add(loggedUser);
         
-        await _articleRepo.UpdateAsync(article);
+        await _articleRepo.UpdateArticleAsync(article);
 
         return article;
     }
 
     public async Task<ArticleModel> UnfavoriteArticleAsync(UserModel loggedUser, string slug)
     {
-        var article = await _articleRepo.GetArticleBySlug(slug);
+        var article = await _articleRepo.GetArticleBySlugAsync(slug);
         if (article == null)
         {
             throw new EntityNotFoundException("Article");
@@ -179,7 +179,7 @@ public class ArticleService : IArticleService
 
         article.FavoritedBy.Remove(loggedUser);
 
-        await _articleRepo.UpdateAsync(article);
+        await _articleRepo.UpdateArticleAsync(article);
 
         return article;
     }

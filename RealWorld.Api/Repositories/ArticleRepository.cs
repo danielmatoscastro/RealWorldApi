@@ -35,7 +35,7 @@ public class ArticleRepository : IArticleRepository
             .Take(searchParams.Limit)
             .ToListAsync();
 
-    public Task<ArticleModel> GetArticleBySlug(string slug) =>
+    public Task<ArticleModel> GetArticleBySlugAsync(string slug) =>
         _context.Articles
             .Include(article => article.Author)
             .Include(article => article.FavoritedBy)
@@ -43,19 +43,19 @@ public class ArticleRepository : IArticleRepository
             .Include(article => article.Comments)
             .FirstOrDefaultAsync(article => article.Slug == slug);
 
-    public async Task CreateAsync(ArticleModel articleModel)
+    public async Task CreateArticleAsync(ArticleModel articleModel)
     {
         await _context.AddAsync(articleModel);
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(ArticleModel articleModel)
+    public async Task UpdateArticleAsync(ArticleModel articleModel)
     {
         _context.Articles.Update(articleModel);
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteArticle(ArticleModel articleModel)
+    public async Task DeleteArticleAsync(ArticleModel articleModel)
     {
         foreach (var comment in articleModel.Comments)
         {

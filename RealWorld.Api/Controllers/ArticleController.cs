@@ -37,7 +37,7 @@ public class ArticleController : ControllerBase
 
     [Authorize]
     [HttpGet("feed")]
-    public async Task<IActionResult> GetFeed([FromQuery] int limit = 20, [FromQuery] int offset = 0)
+    public async Task<IActionResult> GetFeedArticlesAsync([FromQuery] int limit = 20, [FromQuery] int offset = 0)
     {
         var loggedUser = await _userService.GetLoggedUserAsync(User.GetLoggedUserId());
         if (loggedUser == null)
@@ -56,10 +56,10 @@ public class ArticleController : ControllerBase
     }
 
     [HttpGet("{slug}")]
-    public async Task<IActionResult> GetArticle([FromRoute] string slug)
+    public async Task<IActionResult> GetArticleBySlugAsync([FromRoute] string slug)
     {
         var loggedUser = await _userService.GetLoggedUserAsync(User.GetLoggedUserId());
-        var article = await _articleService.GetArticleBySlug(slug);
+        var article = await _articleService.GetArticleBySlugAsync(slug);
         if (article == null)
         {
             return NotFound();
@@ -74,7 +74,7 @@ public class ArticleController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> CreateArticle([FromBody] CreateArticleViewModel payload)
+    public async Task<IActionResult> CreateArticleAsync([FromBody] CreateArticleViewModel payload)
     {
         if (!ModelState.IsValid)
         {
@@ -89,7 +89,7 @@ public class ArticleController : ControllerBase
 
         var tagsModels = MapTagListToTagsModels(payload.Article.TagList);
         
-        var articleModel = await _articleService.CreateAsync(
+        var articleModel = await _articleService.CreateArticleAsync(
             loggedUser, 
             payload.Article.Body, 
             payload.Article.Description, 
@@ -117,7 +117,7 @@ public class ArticleController : ControllerBase
             return Unauthorized();
         }
         
-        var articleModel = await _articleService.UpdateAsync(
+        var articleModel = await _articleService.UpdateArticleAsync(
             loggedUser, 
             slug, 
             payload.Article.Title,
@@ -141,7 +141,7 @@ public class ArticleController : ControllerBase
             return Unauthorized();
         }
 
-        await _articleService.DeleteAsync(loggedUser, slug);
+        await _articleService.DeleteArticleAsync(loggedUser, slug);
 
         return NoContent();
     }
