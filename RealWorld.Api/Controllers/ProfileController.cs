@@ -21,7 +21,7 @@ public class ProfileController : ControllerBase
     {
         var userId = User.GetLoggedUserId();
 
-        var userModelDb = await _userRepo.FindByUsernameAsync(username);
+        var userModelDb = await _userRepo.FindUserByUsernameAsync(username);
         if (userModelDb == null)
         {
             return NotFound();
@@ -52,7 +52,7 @@ public class ProfileController : ControllerBase
             return NotFound();
         }
 
-        var userToFollow = await _userRepo.FindByUsernameAsync(username);
+        var userToFollow = await _userRepo.FindUserByUsernameAsync(username);
         if (userToFollow == null)
         {
             return NotFound();
@@ -64,7 +64,7 @@ public class ProfileController : ControllerBase
         }
 
         userToFollow.Followers.Add(loggedUserModelDb);
-        await _userRepo.UpdateAsync(userToFollow);
+        await _userRepo.UpdateUserAsync(userToFollow);
 
         var profileResponse = new ProfileResponseViewModel
         {
@@ -91,7 +91,7 @@ public class ProfileController : ControllerBase
             return NotFound();
         }
 
-        var userToUnfollow = await _userRepo.FindByUsernameAsync(username);
+        var userToUnfollow = await _userRepo.FindUserByUsernameAsync(username);
         if (userToUnfollow == null)
         {
             return NotFound();
@@ -103,7 +103,7 @@ public class ProfileController : ControllerBase
         }
 
         userToUnfollow.Followers.Remove(loggedUserModelDb);
-        await _userRepo.UpdateAsync(userToUnfollow);
+        await _userRepo.UpdateUserAsync(userToUnfollow);
 
         var profileResponse = new ProfileResponseViewModel
         {
@@ -118,6 +118,6 @@ public class ProfileController : ControllerBase
 
     private async Task<UserModel> GetLoggedUser() =>
         User.Identity.IsAuthenticated && User.GetLoggedUserId() != null
-            ? await _userRepo.FindByIdAsync(User.GetLoggedUserId().Value)
+            ? await _userRepo.FindUserByIdAsync(User.GetLoggedUserId().Value)
             : null;
 }

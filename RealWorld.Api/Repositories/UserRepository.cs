@@ -10,34 +10,34 @@ public class UserRepository : IUserRepository
 
     public UserRepository(RealWorldDataContext context) => _context = context;
 
-    public async Task CreateAsync(UserModel model)
+    public async Task CreateUserAsync(UserModel model)
     {
         await _context.Users.AddAsync(model);
         await _context.SaveChangesAsync();
     }
 
-    public Task<UserModel> FindByEmailAsync(string email) =>
+    public Task<UserModel> FindUserByEmailAsync(string email) =>
         _context.Users
             .Include(x => x.Followers)
             .Include(x => x.Following)
             .Include(x => x.Favorites)
             .FirstOrDefaultAsync(x => x.Email == email);
 
-    public Task<UserModel> FindByIdAsync(int id) =>
+    public Task<UserModel> FindUserByIdAsync(int id) =>
         _context.Users
             .Include(x => x.Followers)
             .Include(x => x.Following)
             .Include(x => x.Favorites)
             .FirstOrDefaultAsync(x => x.Id == id);
 
-    public Task<UserModel> FindByUsernameAsync(string username) =>
+    public Task<UserModel> FindUserByUsernameAsync(string username) =>
         _context.Users
             .Include(x => x.Followers)
             .Include(x => x.Following)
             .Include(x => x.Favorites)
             .FirstOrDefaultAsync(u => u.Username == username);
 
-    public async Task UpdateAsync(UserModel model)
+    public async Task UpdateUserAsync(UserModel model)
     {
         _context.Users.Update(model);
         await _context.SaveChangesAsync();

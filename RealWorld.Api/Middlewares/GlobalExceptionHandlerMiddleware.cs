@@ -42,6 +42,9 @@ public class GlobalExceptionHandlerMiddleware
             case ForbiddenOperation:
                 context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 break;
+            case UnauthorizedOperationException:
+                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                break;
             case BusinessRuleViolationException exBusiness:
                 context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
                 context.Response.Body =

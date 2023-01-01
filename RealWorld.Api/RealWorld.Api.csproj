@@ -20,4 +20,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Services\Abstraction\IAuthService.cs" />
+    <Compile Remove="Services\AuthService.cs" />
+  </ItemGroup>
+
 </Project>

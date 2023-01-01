@@ -3,10 +3,11 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using RealWorld.Api.Models;
+using RealWorld.Api.Services.Abstraction;
 
 namespace RealWorld.Api.Services;
 
-public class TokenService
+public class TokenService: ITokenService
 {
     private AuthOptions _options;
 
