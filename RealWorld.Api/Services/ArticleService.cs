@@ -1,3 +1,4 @@
+using System.Collections;
 using RealWorld.Api.DTOs;
 using RealWorld.Api.Exceptions;
 using RealWorld.Api.Models;
@@ -18,23 +19,25 @@ public class ArticleService : IArticleService
         _commentRepo = commentRepo;
     }
     
-    public Task<List<ArticleModel>> GetArticlesAsync(ArticleSearchParamsDTO searchParams) => _articleRepo.GetArticlesAsync(searchParams);
+    public Task<List<ArticleModel>> GetArticlesAsync(ArticleSearchParamsDTO searchParams) => 
+        _articleRepo.GetArticlesAsync(searchParams);
     public Task<List<ArticleModel>> GetFeedArticlesAsync(UserModel loggedUser, int limit, int offset) => 
         _articleRepo.GetFeedArticlesAsync(loggedUser, limit, offset);
 
     public Task<ArticleModel> GetArticleBySlugAsync(string slug) => _articleRepo.GetArticleBySlugAsync(slug);
-    public async Task<ArticleModel> CreateArticleAsync(UserModel author, string articleBody, string articleDescription, string articleTitle, ICollection<TagModel> tags)
+    public async Task<ArticleModel> CreateArticleAsync(
+        UserModel author, string body, string description, string title, IEnumerable<string> tags)
     {
         var articleModel = new ArticleModel
         {
             Author = author,
-            Body = articleBody,
-            Description = articleDescription,
-            Slug = articleTitle.GenerateSlug(),
-            Title = articleTitle,
+            Body = body,
+            Description = description,
+            Slug = title.GenerateSlug(),
+            Title = title,
             UpdatedAt = DateTimeOffset.Now,
             CreatedAt = DateTimeOffset.Now,
-            Tags = tags,
+            Tags = CreateTagModelsFromStrings(tags),
         };
         
         await _articleRepo.CreateArticleAsync(articleModel);
@@ -42,7 +45,13 @@ public class ArticleService : IArticleService
         return articleModel;
     }
 
-    public async Task<ArticleModel> UpdateArticleAsync(UserModel loggedUser, string slug, string title, string description, string body)
+    private ICollection<TagModel> CreateTagModelsFromStrings(IEnumerable<string> tags) =>
+        tags != null 
+            ? tags.Select(t => new TagModel { Name = t }).ToList()
+            : new List<TagModel>();
+
+    public async Task<ArticleModel> UpdateArticleAsync(
+        UserModel loggedUser, string slug, string title, string description, string body)
     {
         var articleModelDb = await _articleRepo.GetArticleBySlugAsync(slug);
         if (articleModelDb == null)

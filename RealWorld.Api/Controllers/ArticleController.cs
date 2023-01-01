@@ -86,15 +86,13 @@ public class ArticleController : ControllerBase
         {
             return Unauthorized();
         }
-
-        var tagsModels = MapTagListToTagsModels(payload.Article.TagList);
         
         var articleModel = await _articleService.CreateArticleAsync(
             loggedUser, 
             payload.Article.Body, 
             payload.Article.Description, 
             payload.Article.Title, 
-            tagsModels);
+            payload.Article.TagList);
 
         var articleResponse = MapArticleToViewModel(loggedUser, articleModel);
         return Ok(new
@@ -255,11 +253,6 @@ public class ArticleController : ControllerBase
                 Username = comment.Author.Username
             }
         };
-
-    private ICollection<TagModel> MapTagListToTagsModels(IEnumerable<string> tagList) =>
-        tagList != null
-            ? tagList.Select(t => new TagModel { Name = t }).ToList()
-            : new List<TagModel>();
 
     private IEnumerable<ArticleResponseViewModel> MapArticlesToViewModels(UserModel loggedUser, List<ArticleModel> articles) =>
         articles.Select(article => MapArticleToViewModel(loggedUser, article));
