@@ -6,9 +6,9 @@ namespace RealWorld.Api.Tests.Fakes;
 
 public class FakeArticleRepository : IArticleRepository
 {
-    private readonly List<ArticleModel> _articleModels;
+    public List<ArticleModel> FakeDbSet { get; private set; }
 
-    public FakeArticleRepository(params ArticleModel[] articleModels) => _articleModels = articleModels.ToList();
+    public FakeArticleRepository(params ArticleModel[] articleModels) => FakeDbSet = articleModels.ToList();
     
     public Task<List<ArticleModel>> GetArticlesAsync(ArticleSearchParamsDTO searchParams)
     {
@@ -27,7 +27,8 @@ public class FakeArticleRepository : IArticleRepository
 
     public Task CreateArticleAsync(ArticleModel articleModel)
     {
-        throw new NotImplementedException();
+        FakeDbSet.Add(articleModel);
+        return Task.CompletedTask;
     }
 
     public Task UpdateArticleAsync(ArticleModel articleModelDb)
