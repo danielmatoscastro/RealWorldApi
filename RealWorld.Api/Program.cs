@@ -7,6 +7,7 @@ using RealWorld.Api.Data;
 using RealWorld.Api.Middlewares;
 using RealWorld.Api.Repositories;
 using RealWorld.Api.Services;
+using RealWorld.Api.Services.Abstraction;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,8 @@ builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IArticleRepository, ArticleRepository>();
 builder.Services.AddTransient<ICommentRepository, CommentRepository>();
 builder.Services.AddTransient<ITagRepository, TagRepository>();
+builder.Services.AddTransient<IArticleService, ArticleService>();
+builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<TokenService>();
 
 var app = builder.Build();
