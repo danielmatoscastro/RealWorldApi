@@ -1,13 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RealWorld.Api.DTOs;
 using RealWorld.Api.Extensions;
 using RealWorld.Api.Models;
-using RealWorld.Api.Queries;
-using RealWorld.Api.Repositories;
-using RealWorld.Api.Services;
 using RealWorld.Api.Services.Abstraction;
 using RealWorld.Api.ViewModels;
-using SlugGenerator;
 
 namespace RealWorld.Api.Controllers;
 
@@ -25,10 +22,10 @@ public class ArticleController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetArticles([FromQuery] ArticleQuery articleQuery)
+    public async Task<IActionResult> GetArticles([FromQuery] ArticleSearchParamsDTO searchParams)
     {
         var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
-        var articles = await _articleService.SearchAsync(articleQuery);
+        var articles = await _articleService.SearchAsync(searchParams);
 
         var articlesResponse = MapArticlesToViewModels(loggedUser, articles);
         return Ok(new

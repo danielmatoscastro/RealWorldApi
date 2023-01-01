@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RealWorld.Api.Data;
+using RealWorld.Api.DTOs;
 using RealWorld.Api.Models;
-using RealWorld.Api.Queries;
 
 namespace RealWorld.Api.Repositories;
 
@@ -22,17 +22,17 @@ public class ArticleRepository : IArticleRepository
             .Take(limit)
             .ToListAsync();
 
-    public Task<List<ArticleModel>> SearchAsync(ArticleQuery articleQuery) =>
+    public Task<List<ArticleModel>> SearchAsync(ArticleSearchParamsDTO searchParams) =>
         _context.Articles
             .Include(article => article.Author)
             .Include(article => article.FavoritedBy)
             .Include(article => article.Tags)
-            .Where(article => articleQuery.Author == null || article.Author.Username == articleQuery.Author)
-            .Where(article => articleQuery.Favorited == null || article.FavoritedBy.Any(u => u.Username == articleQuery.Favorited))
-            .Where(article => articleQuery.Tag == null || article.Tags.Any(t => t.Name == articleQuery.Tag))
+            .Where(article => searchParams.Author == null || article.Author.Username == searchParams.Author)
+            .Where(article => searchParams.Favorited == null || article.FavoritedBy.Any(u => u.Username == searchParams.Favorited))
+            .Where(article => searchParams.Tag == null || article.Tags.Any(t => t.Name == searchParams.Tag))
             .OrderByDescending(article => article.CreatedAt)
-            .Skip(articleQuery.Offset)
-            .Take(articleQuery.Limit)
+            .Skip(searchParams.Offset)
+            .Take(searchParams.Limit)
             .ToListAsync();
 
     public Task<ArticleModel> GetArticleBySlug(string slug) =>

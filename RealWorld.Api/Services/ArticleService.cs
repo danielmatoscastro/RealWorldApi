@@ -1,6 +1,6 @@
+using RealWorld.Api.DTOs;
 using RealWorld.Api.Exceptions;
 using RealWorld.Api.Models;
-using RealWorld.Api.Queries;
 using RealWorld.Api.Repositories;
 using RealWorld.Api.Services.Abstraction;
 using SlugGenerator;
@@ -18,7 +18,7 @@ public class ArticleService : IArticleService
         _commentRepo = commentRepo;
     }
     
-    public Task<List<ArticleModel>> SearchAsync(ArticleQuery query) => _articleRepo.SearchAsync(query);
+    public Task<List<ArticleModel>> SearchAsync(ArticleSearchParamsDTO searchParams) => _articleRepo.SearchAsync(searchParams);
     public Task<List<ArticleModel>> GetFeedArticlesAsync(UserModel loggedUser, int limit, int offset) => 
         _articleRepo.GetFeedArticlesAsync(loggedUser, limit, offset);
 

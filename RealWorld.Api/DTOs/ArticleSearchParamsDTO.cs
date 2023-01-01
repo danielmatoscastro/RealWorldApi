@@ -1,6 +1,6 @@
-namespace RealWorld.Api.Queries;
+namespace RealWorld.Api.DTOs;
 
-public class ArticleQuery
+public class ArticleSearchParamsDTO
 {
     public string Author { get; init; }
     public string Tag { get; init; }

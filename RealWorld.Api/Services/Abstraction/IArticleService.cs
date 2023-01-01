@@ -1,11 +1,11 @@
+using RealWorld.Api.DTOs;
 using RealWorld.Api.Models;
-using RealWorld.Api.Queries;
 
 namespace RealWorld.Api.Services.Abstraction;
 
 public interface IArticleService
 {
-    Task<List<ArticleModel>> SearchAsync(ArticleQuery query);
+    Task<List<ArticleModel>> SearchAsync(ArticleSearchParamsDTO searchParams);
     Task<List<ArticleModel>> GetFeedArticlesAsync(UserModel loggedUser, int limit, int offset);
     Task<ArticleModel> GetArticleBySlug(string slug);
     Task<ArticleModel> CreateAsync(UserModel author, 
