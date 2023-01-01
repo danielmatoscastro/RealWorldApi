@@ -18,7 +18,7 @@ public class ArticleService : IArticleService
         _commentRepo = commentRepo;
     }
     
-    public Task<List<ArticleModel>> SearchAsync(ArticleSearchParamsDTO searchParams) => _articleRepo.SearchAsync(searchParams);
+    public Task<List<ArticleModel>> GetArticlesAsync(ArticleSearchParamsDTO searchParams) => _articleRepo.GetArticlesAsync(searchParams);
     public Task<List<ArticleModel>> GetFeedArticlesAsync(UserModel loggedUser, int limit, int offset) => 
         _articleRepo.GetFeedArticlesAsync(loggedUser, limit, offset);
 

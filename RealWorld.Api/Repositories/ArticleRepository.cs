@@ -22,7 +22,7 @@ public class ArticleRepository : IArticleRepository
             .Take(limit)
             .ToListAsync();
 
-    public Task<List<ArticleModel>> SearchAsync(ArticleSearchParamsDTO searchParams) =>
+    public Task<List<ArticleModel>> GetArticlesAsync(ArticleSearchParamsDTO searchParams) =>
         _context.Articles
             .Include(article => article.Author)
             .Include(article => article.FavoritedBy)

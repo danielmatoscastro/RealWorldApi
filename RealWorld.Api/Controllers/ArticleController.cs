@@ -22,10 +22,10 @@ public class ArticleController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetArticles([FromQuery] ArticleSearchParamsDTO searchParams)
+    public async Task<IActionResult> GetArticlesAsync([FromQuery] ArticleSearchParamsDTO searchParams)
     {
         var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
-        var articles = await _articleService.SearchAsync(searchParams);
+        var articles = await _articleService.GetArticlesAsync(searchParams);
 
         var articlesResponse = MapArticlesToViewModels(loggedUser, articles);
         return Ok(new
