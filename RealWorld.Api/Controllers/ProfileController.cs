@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RealWorld.Api.Extensions;
 using RealWorld.Api.Models;
 using RealWorld.Api.Repositories;
 using RealWorld.Api.ViewModels;

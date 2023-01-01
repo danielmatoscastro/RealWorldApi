@@ -8,7 +8,7 @@ using RealWorld.Api.Data;
 
 #nullable disable
 
-namespace RealWorldApi.Migrations
+namespace RealWorld.Api.Migrations
 {
     [DbContext(typeof(RealWorldDataContext))]
     partial class RealWorldDataContextModelSnapshot : ModelSnapshot

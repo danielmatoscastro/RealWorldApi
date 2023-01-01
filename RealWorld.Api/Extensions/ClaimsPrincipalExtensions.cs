@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace RealWorld.Api;
+namespace RealWorld.Api.Extensions;
 
 public static class ClaimsPrincipalExtensions
 {

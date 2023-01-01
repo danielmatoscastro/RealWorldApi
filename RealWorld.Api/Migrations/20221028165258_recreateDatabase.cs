@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace RealWorldApi.Migrations
+namespace RealWorld.Api.Migrations
 {
     public partial class recreateDatabase : Migration
     {

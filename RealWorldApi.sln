@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealWorldApi", "RealWorld.Api\RealWorldApi.csproj", "{4119EEA0-24A2-4322-9439-C3269C61BAE5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealWorld.Api", "RealWorld.Api\RealWorld.Api.csproj", "{4119EEA0-24A2-4322-9439-C3269C61BAE5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealWorld.Api.Tests", "RealWorld.Api.Tests\RealWorld.Api.Tests.csproj", "{95DDD61E-AB3C-44F4-88E6-9792F65D3CF6}"
 EndProject

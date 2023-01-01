@@ -1,4 +1,7 @@
 using System.Net;
+using System.Text.Json;
+using RealWorld.Api.Exceptions;
+using RealWorld.Api.Extensions;
 
 namespace RealWorld.Api.Middlewares;
 
@@ -27,9 +30,26 @@ public class GlobalExceptionHandlerMiddleware
 
     private void HandleExceptionAsync(HttpContext context, Exception ex)
     {
-        _logger.LogError($"An exception occoured at {context.GetEndpoint().DisplayName}. Exception: {ex.Message}. Stacktrace: {ex.StackTrace}.");
+        _logger.LogError($"An exception occurred at {context.GetEndpoint()?.DisplayName}. Exception: {ex.Message}. Stacktrace: {ex.StackTrace}.");
 
         context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+        switch (ex)
+        {
+            case EntityNotFoundException:
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                break;
+            case ForbiddenOperation:
+                context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                break;
+            case BusinessRuleViolationException exBusiness:
+                context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                context.Response.Body =
+                    new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(exBusiness.ToErrorsResponseViewModel()));
+                break;
+            default:
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                break;
+        }
     }
 }

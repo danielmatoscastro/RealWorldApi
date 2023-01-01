@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RealWorld.Api\RealWorldApi.csproj" />
+    <ProjectReference Include="..\RealWorld.Api\RealWorld.Api.csproj" />
   </ItemGroup>
 
 </Project>

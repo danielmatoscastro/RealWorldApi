@@ -4,6 +4,8 @@ using RealWorld.Api.Extensions;
 using RealWorld.Api.Models;
 using RealWorld.Api.Queries;
 using RealWorld.Api.Repositories;
+using RealWorld.Api.Services;
+using RealWorld.Api.Services.Abstraction;
 using RealWorld.Api.ViewModels;
 using SlugGenerator;
 
@@ -13,23 +15,20 @@ namespace RealWorld.Api.Controllers;
 [Route("api/articles")]
 public class ArticleController : ControllerBase
 {
-    private readonly IUserRepository _userRepo;
-    private readonly IArticleRepository _articleRepo;
-    private readonly ICommentRepository _commentRepo;
-
-    public ArticleController(IUserRepository userRepo, IArticleRepository articleRepo, ICommentRepository commentRepo)
+    private readonly IUserService _userService;
+    private readonly IArticleService _articleService;
+    
+    public ArticleController(IUserService userService, IArticleService articleService)
     {
-        _userRepo = userRepo;
-        _articleRepo = articleRepo;
-        _commentRepo = commentRepo;
+        _userService = userService;
+        _articleService = articleService;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetArticles([FromQuery] ArticleQuery articleQuery)
     {
-        var loggedUser = await GetLoggedUser();
-
-        var articles = await _articleRepo.SearchAsync(articleQuery);
+        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
+        var articles = await _articleService.SearchAsync(articleQuery);
 
         var articlesResponse = MapArticlesToViewModels(loggedUser, articles);
         return Ok(new
@@ -43,13 +42,13 @@ public class ArticleController : ControllerBase
     [HttpGet("feed")]
     public async Task<IActionResult> GetFeed([FromQuery] int limit = 20, [FromQuery] int offset = 0)
     {
-        var loggedUser = await GetLoggedUser();
+        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
         }
 
-        var articles = await _articleRepo.GetFeedArticlesAsync(loggedUser, limit, offset);
+        var articles = await _articleService.GetFeedArticlesAsync(loggedUser, limit, offset);
 
         var articlesResponse = MapArticlesToViewModels(loggedUser, articles);
         return Ok(new
@@ -62,9 +61,8 @@ public class ArticleController : ControllerBase
     [HttpGet("{slug}")]
     public async Task<IActionResult> GetArticle([FromRoute] string slug)
     {
-        var loggedUser = await GetLoggedUser();
-
-        var article = await _articleRepo.GetArticleBySlug(slug);
+        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
+        var article = await _articleService.GetArticleBySlug(slug);
         if (article == null)
         {
             return NotFound();
@@ -86,24 +84,20 @@ public class ArticleController : ControllerBase
             return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
         }
 
-        var loggedUser = await GetLoggedUser();
+        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
         }
 
-        var articleModel = new ArticleModel
-        {
-            Author = loggedUser,
-            Body = payload.Article.Body,
-            Description = payload.Article.Description,
-            Slug = payload.Article.Title.GenerateSlug(),
-            Title = payload.Article.Title,
-            UpdatedAt = DateTimeOffset.Now,
-            CreatedAt = DateTimeOffset.Now,
-            Tags = MapTagListToTagsModels(payload.Article.TagList),
-        };
-        await _articleRepo.CreateAsync(articleModel);
+        var tagsModels = MapTagListToTagsModels(payload.Article.TagList);
+        
+        var articleModel = await _articleService.CreateAsync(
+            loggedUser, 
+            payload.Article.Body, 
+            payload.Article.Description, 
+            payload.Article.Title, 
+            tagsModels);
 
         var articleResponse = MapArticleToViewModel(loggedUser, articleModel);
         return Ok(new
@@ -120,39 +114,20 @@ public class ArticleController : ControllerBase
             return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
         }
 
-        var loggedUser = await GetLoggedUser();
+        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
         }
+        
+        var articleModel = await _articleService.UpdateAsync(
+            loggedUser, 
+            slug, 
+            payload.Article.Title,
+            payload.Article.Description, 
+            payload.Article.Body);
 
-        var articleModelDb = await _articleRepo.GetArticleBySlug(slug);
-        if (articleModelDb == null)
-        {
-            return NotFound();
-        }
-
-        if (articleModelDb.Author.Id != loggedUser.Id)
-        {
-            return Forbid();
-        }
-
-        if (payload.Article.Title != null)
-        {
-            articleModelDb.Title = payload.Article.Title;
-            articleModelDb.Slug = payload.Article.Title.GenerateSlug();
-        }
-        if (payload.Article.Description != null)
-        {
-            articleModelDb.Description = payload.Article.Description;
-        }
-        if (payload.Article.Body != null)
-        {
-            articleModelDb.Body = payload.Article.Body;
-        }
-        await _articleRepo.UpdateAsync(articleModelDb);
-
-        var articleResponse = MapArticleToViewModel(loggedUser, articleModelDb);
+        var articleResponse = MapArticleToViewModel(loggedUser, articleModel);
         return Ok(new
         {
             Article = articleResponse
@@ -163,24 +138,13 @@ public class ArticleController : ControllerBase
     [HttpDelete("{slug}")]
     public async Task<IActionResult> DeleteArticle([FromRoute] string slug)
     {
-        var loggedUser = await GetLoggedUser();
+        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
         }
 
-        var article = await _articleRepo.GetArticleBySlug(slug);
-        if (article == null)
-        {
-            return NotFound();
-        }
-
-        if (article.Author.Id != loggedUser.Id)
-        {
-            return Forbid();
-        }
-
-        await _articleRepo.DeleteArticle(article);
+        await _articleService.DeleteAsync(loggedUser, slug);
 
         return NoContent();
     }
@@ -194,29 +158,14 @@ public class ArticleController : ControllerBase
             return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
         }
 
-        var loggedUser = await GetLoggedUser();
+        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
         }
 
-        var article = await _articleRepo.GetArticleBySlug(slug);
-        if (article == null)
-        {
-            return NotFound();
-        }
-
-        var comment = new CommentModel
-        {
-            Author = loggedUser,
-            Article = article,
-            Body = payload.Comment.Body,
-            CreatedAt = DateTimeOffset.Now,
-            UpdatedAt = DateTimeOffset.Now,
-        };
-
-        await _commentRepo.AddCommentAsync(comment);
-
+        var comment = await _articleService.AddCommentToArticleAsync(loggedUser, slug, payload.Comment.Body);
+        
         var response = MapCommentToViewModel(loggedUser, comment);
 
         return Ok(new
@@ -228,13 +177,9 @@ public class ArticleController : ControllerBase
     [HttpGet("{slug}/comments")]
     public async Task<IActionResult> GetAllComments([FromRoute] string slug)
     {
-        var loggedUser = await GetLoggedUser();
+        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
 
-        var comments = await _commentRepo.GetCommentsBySlugAsync(slug);
-        if (comments == null)
-        {
-            return NotFound();
-        }
+        var comments = await _articleService.GetCommentsBySlugAsync(slug);
 
         return Ok(new
         {
@@ -246,29 +191,13 @@ public class ArticleController : ControllerBase
     [HttpDelete("{slug}/comments/{id:int}")]
     public async Task<IActionResult> DeleteComment([FromRoute] string slug, [FromRoute] int id)
     {
-        var loggedUser = await GetLoggedUser();
+        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
         }
 
-        var comment = await _commentRepo.GetCommentByIdAsync(id);
-        if (comment == null)
-        {
-            return NotFound();
-        }
-
-        if (comment.Author.Id != loggedUser.Id)
-        {
-            return Forbid();
-        }
-
-        if (comment.Article.Slug != slug)
-        {
-            return BadRequest();
-        }
-
-        await _commentRepo.DeleteAsync(comment);
+        await _articleService.DeleteCommentAsync(loggedUser, slug, id);
 
         return NoContent();
     }
@@ -277,25 +206,13 @@ public class ArticleController : ControllerBase
     [HttpPost("{slug}/favorite")]
     public async Task<IActionResult> FavoriteArticle([FromRoute] string slug)
     {
-        var loggedUser = await GetLoggedUser();
+        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
         }
 
-        var article = await _articleRepo.GetArticleBySlug(slug);
-        if (article == null)
-        {
-            return NotFound();
-        }
-
-        if (article.FavoritedBy.Contains(loggedUser))
-        {
-            return BadRequest();
-        }
-
-        article.FavoritedBy.Add(loggedUser);
-        await _articleRepo.UpdateAsync(article);
+        var article = await _articleService.FavoriteArticleAsync(loggedUser, slug);
 
         var articleResponse = MapArticleToViewModel(loggedUser, article);
         return Ok(new
@@ -308,25 +225,13 @@ public class ArticleController : ControllerBase
     [HttpDelete("{slug}/favorite")]
     public async Task<IActionResult> UnfavoriteArticle([FromRoute] string slug)
     {
-        var loggedUser = await GetLoggedUser();
+        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
         }
 
-        var article = await _articleRepo.GetArticleBySlug(slug);
-        if (article == null)
-        {
-            return NotFound();
-        }
-
-        if (!article.FavoritedBy.Contains(loggedUser))
-        {
-            return BadRequest();
-        }
-
-        article.FavoritedBy.Remove(loggedUser);
-        await _articleRepo.UpdateAsync(article);
+        var article = await _articleService.UnfavoriteArticleAsync(loggedUser, slug);
 
         var articleResponse = MapArticleToViewModel(loggedUser, article);
         return Ok(new
@@ -384,13 +289,8 @@ public class ArticleController : ControllerBase
         };
 
     private bool IsArticleFavoritedByLoggedUser(UserModel loggedUser, ArticleModel article) =>
-        loggedUser != null ? loggedUser.Favorites.Contains(article) : false;
+        loggedUser != null && loggedUser.Favorites.Contains(article);
 
     private bool IsLoggedUserFollowingAuthor(UserModel loggedUser, ArticleModel article) =>
-        loggedUser != null ? loggedUser.Following.Contains(article.Author) : false;
-
-    private async Task<UserModel> GetLoggedUser() =>
-        User.Identity.IsAuthenticated && User.GetLoggedUserId() != null
-            ? await _userRepo.FindByIdAsync(User.GetLoggedUserId().Value)
-            : null;
+        loggedUser != null && loggedUser.Following.Contains(article.Author);
 }

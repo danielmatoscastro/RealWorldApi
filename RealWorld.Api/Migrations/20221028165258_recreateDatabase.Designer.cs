@@ -9,7 +9,7 @@ using RealWorld.Api.Data;
 
 #nullable disable
 
-namespace RealWorldApi.Migrations
+namespace RealWorld.Api.Migrations
 {
     [DbContext(typeof(RealWorldDataContext))]
     [Migration("20221028165258_recreateDatabase")]
