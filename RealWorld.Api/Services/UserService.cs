@@ -13,6 +13,6 @@ public class UserService : IUserService
         _userRepo = userRepo;
     }
     
-    public async Task<UserModel> GetLoggedUser(int? loggedUserId) => 
+    public async Task<UserModel> GetLoggedUserAsync(int? loggedUserId) => 
         loggedUserId.HasValue ? await _userRepo.FindByIdAsync(loggedUserId.Value) : null;
 }

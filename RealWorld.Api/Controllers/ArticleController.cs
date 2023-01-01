@@ -24,7 +24,7 @@ public class ArticleController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetArticlesAsync([FromQuery] ArticleSearchParamsDTO searchParams)
     {
-        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
+        var loggedUser = await _userService.GetLoggedUserAsync(User.GetLoggedUserId());
         var articles = await _articleService.GetArticlesAsync(searchParams);
 
         var articlesResponse = MapArticlesToViewModels(loggedUser, articles);
@@ -39,7 +39,7 @@ public class ArticleController : ControllerBase
     [HttpGet("feed")]
     public async Task<IActionResult> GetFeed([FromQuery] int limit = 20, [FromQuery] int offset = 0)
     {
-        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
+        var loggedUser = await _userService.GetLoggedUserAsync(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
@@ -58,7 +58,7 @@ public class ArticleController : ControllerBase
     [HttpGet("{slug}")]
     public async Task<IActionResult> GetArticle([FromRoute] string slug)
     {
-        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
+        var loggedUser = await _userService.GetLoggedUserAsync(User.GetLoggedUserId());
         var article = await _articleService.GetArticleBySlug(slug);
         if (article == null)
         {
@@ -81,7 +81,7 @@ public class ArticleController : ControllerBase
             return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
         }
 
-        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
+        var loggedUser = await _userService.GetLoggedUserAsync(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
@@ -111,7 +111,7 @@ public class ArticleController : ControllerBase
             return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
         }
 
-        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
+        var loggedUser = await _userService.GetLoggedUserAsync(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
@@ -135,7 +135,7 @@ public class ArticleController : ControllerBase
     [HttpDelete("{slug}")]
     public async Task<IActionResult> DeleteArticle([FromRoute] string slug)
     {
-        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
+        var loggedUser = await _userService.GetLoggedUserAsync(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
@@ -155,7 +155,7 @@ public class ArticleController : ControllerBase
             return UnprocessableEntity(ModelState.ToErrorsResponseViewModel());
         }
 
-        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
+        var loggedUser = await _userService.GetLoggedUserAsync(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
@@ -174,7 +174,7 @@ public class ArticleController : ControllerBase
     [HttpGet("{slug}/comments")]
     public async Task<IActionResult> GetAllComments([FromRoute] string slug)
     {
-        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
+        var loggedUser = await _userService.GetLoggedUserAsync(User.GetLoggedUserId());
 
         var comments = await _articleService.GetCommentsBySlugAsync(slug);
 
@@ -188,7 +188,7 @@ public class ArticleController : ControllerBase
     [HttpDelete("{slug}/comments/{id:int}")]
     public async Task<IActionResult> DeleteComment([FromRoute] string slug, [FromRoute] int id)
     {
-        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
+        var loggedUser = await _userService.GetLoggedUserAsync(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
@@ -203,7 +203,7 @@ public class ArticleController : ControllerBase
     [HttpPost("{slug}/favorite")]
     public async Task<IActionResult> FavoriteArticle([FromRoute] string slug)
     {
-        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
+        var loggedUser = await _userService.GetLoggedUserAsync(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();
@@ -222,7 +222,7 @@ public class ArticleController : ControllerBase
     [HttpDelete("{slug}/favorite")]
     public async Task<IActionResult> UnfavoriteArticle([FromRoute] string slug)
     {
-        var loggedUser = await _userService.GetLoggedUser(User.GetLoggedUserId());
+        var loggedUser = await _userService.GetLoggedUserAsync(User.GetLoggedUserId());
         if (loggedUser == null)
         {
             return Unauthorized();

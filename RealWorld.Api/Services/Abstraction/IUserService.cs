@@ -4,5 +4,5 @@ namespace RealWorld.Api.Services.Abstraction;
 
 public interface IUserService
 {
-    Task<UserModel> GetLoggedUser(int? loggedUserId);
+    Task<UserModel> GetLoggedUserAsync(int? loggedUserId);
 }

@@ -13,7 +13,7 @@ public class UserServiceTests
         var fakeRepo = new FakeUserRepository(new UserModel { Id = 5 });
         var service = new UserService(fakeRepo);
 
-        var loggedUser = await service.GetLoggedUser(5);
+        var loggedUser = await service.GetLoggedUserAsync(5);
 
         loggedUser.Should().NotBeNull();
         loggedUser.Id.Should().Be(5);
@@ -25,7 +25,7 @@ public class UserServiceTests
         var fakeRepo = new FakeUserRepository();
         var service = new UserService(fakeRepo);
 
-        var loggedUser = await service.GetLoggedUser(5);
+        var loggedUser = await service.GetLoggedUserAsync(5);
 
         loggedUser.Should().BeNull();
     }
@@ -36,7 +36,7 @@ public class UserServiceTests
         var fakeRepo = new FakeUserRepository(new UserModel { Id = 5 });
         var service = new UserService(fakeRepo);
 
-        var loggedUser = await service.GetLoggedUser(null);
+        var loggedUser = await service.GetLoggedUserAsync(null);
 
         loggedUser.Should().BeNull();
     }
